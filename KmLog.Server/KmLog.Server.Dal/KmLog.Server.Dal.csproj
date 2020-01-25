@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KmLog.Server.DTO\KmLog.Server.DTO.csproj" />
     <ProjectReference Include="..\KmLog.Server.EF\KmLog.Server.EF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,14 @@
-﻿using KmLog.Server.Dal.Base;
+﻿using AutoMapper;
+using KmLog.Server.Dal.Base;
+using KmLog.Server.DTO;
 using KmLog.Server.EF;
 using KmLog.Server.Model;
 
 namespace KmLog.Server.Dal
 {
-    public class JourneyRepository : BaseRepository<Journey>, IJourneyRepository
+    public class JourneyRepository : BaseRepository<Journey, JourneyDTO>, IJourneyRepository
     {
-        public JourneyRepository(KmLogContext context) : base(context)
+        public JourneyRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }
     }
 }

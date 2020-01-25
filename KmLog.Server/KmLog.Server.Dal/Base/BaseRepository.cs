@@ -2,62 +2,86 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using KmLog.Server.DTO.Base;
 using KmLog.Server.EF;
 using KmLog.Server.Model.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.Dal.Base
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : IdentifiableBase
+    public class BaseRepository<TEntity, TDto> : IBaseRepository<TEntity, TDto>
+        where TEntity : IdentifiableBase
+        where TDto : IdentifiableBaseDTO
     {
         protected KmLogContext Context { get; }
+        protected IMapper Mapper { get; }
 
-        public BaseRepository(KmLogContext context)
+        public BaseRepository(KmLogContext context, IMapper mapper)
         {
             Context = context;
+            Mapper = mapper;
         }
 
-        protected IQueryable<T> Query()
+        protected IQueryable<TEntity> Query()
         {
-            return Context.Set<T>().AsNoTracking();
+            return Context.Set<TEntity>().AsNoTracking();
         }
 
-        public async Task<IEnumerable<T>> LoadAll()
+        public async Task<IEnumerable<TDto>> LoadAll()
         {
-            return await Context.Set<T>()
+            var entities = await Context.Set<TEntity>()
                 .AsNoTracking()
                 .ToListAsync();
+
+            return Mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public async Task<T> GetById(Guid id)
+        public async Task<TDto> GetById(Guid id)
         {
-            return await Context.Set<T>()
+            var entity = await Context.Set<TEntity>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
+
+            return Mapper.Map<TDto>(entity);
         }
 
-        public async Task Add(T entity)
+        public async Task Add(TDto dto)
         {
-            await Context.Set<T>().AddAsync(entity);
+            var entity = Mapper.Map<TEntity>(dto);
+            
+            await Context.Set<TEntity>().AddAsync(entity);
             await Context.SaveChangesAsync();
+
+            Mapper.Map(entity, dto);
         }
 
-        public async Task Add(IEnumerable<T> entities)
+        public async Task Add(IEnumerable<TDto> dtos)
         {
-            await Context.Set<T>().AddRangeAsync(entities);
+            var entities = Mapper.Map<IEnumerable<TEntity>>(dtos);
+            
+            await Context.Set<TEntity>().AddRangeAsync(entities);
             await Context.SaveChangesAsync();
+            
+            Mapper.Map(entities, dtos);
         }
 
-        public async Task Update(T entity)
+        public async Task Update(TDto dto)
         {
-            Context.Set<T>().Update(entity);
+            var entity = Mapper.Map<TEntity>(dto);
+            
+            Context.Set<TEntity>().Update(entity);
             await Context.SaveChangesAsync();
+            
+            Mapper.Map(entity, dto);
         }
 
         public async Task Delete(Guid id)
         {
-            var entity = await GetById(id);
-            Context.Set<T>().Remove(entity);
+            var dto = await GetById(id);
+            var entity = Mapper.Map<TEntity>(dto);
+            
+            Context.Set<TEntity>().Remove(entity);
             await Context.SaveChangesAsync();
         }
     }

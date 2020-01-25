@@ -24,6 +24,7 @@ namespace KmLog.Server.WebApi
             services.AddControllers();
 
             services.AddDbContext(Configuration);
+            services.AddAutoMapper();
             services.AddRepositories();
             services.AddLogic();
         }

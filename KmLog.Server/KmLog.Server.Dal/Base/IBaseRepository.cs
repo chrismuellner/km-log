@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using KmLog.Server.DTO.Base;
 using KmLog.Server.Model.Base;
 
 namespace KmLog.Server.Dal.Base
 {
-    public interface IBaseRepository<T> where T : IdentifiableBase
+    public interface IBaseRepository<TEntity, TDTO> 
+        where TEntity : IdentifiableBase
+        where TDTO : IdentifiableBaseDTO
     {
-        Task Add(IEnumerable<T> entities);
+        Task Add(IEnumerable<TDTO> entities);
 
-        Task Add(T entity);
+        Task Add(TDTO entity);
 
         Task Delete(Guid id);
 
-        Task<T> GetById(Guid id);
+        Task<TDTO> GetById(Guid id);
 
-        Task<IEnumerable<T>> LoadAll();
+        Task<IEnumerable<TDTO>> LoadAll();
 
-        Task Update(T entity);
+        Task Update(TDTO entity);
     }
 }

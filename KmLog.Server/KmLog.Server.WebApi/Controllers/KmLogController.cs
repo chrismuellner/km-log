@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using KmLog.Server.DTO;
 using KmLog.Server.Logic;
 using KmLog.Server.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace KmLog.Server.WebApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Add([FromBody] Journey journey)
+        public async Task<IActionResult> Add([FromBody] JourneyDTO journey)
         {
             var added = await _kmLogLogic.Add(journey);
             if (added != null)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
+using KmLog.Server.DTO;
 using KmLog.Server.Model;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +20,7 @@ namespace KmLog.Server.Logic
             _journeyRepository = journeyRepository;
         }
 
-        public async Task<Journey> Add(Journey journey)
+        public async Task<JourneyDTO> Add(JourneyDTO journey)
         {
             try
             {
@@ -29,11 +30,11 @@ namespace KmLog.Server.Logic
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding new journey");
+                throw;
             }
-            return null;
         }
 
-        public async Task<IEnumerable<Journey>> LoadAll()
+        public async Task<IEnumerable<JourneyDTO>> LoadAll()
         {
             try
             {
@@ -44,8 +45,8 @@ namespace KmLog.Server.Logic
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading all journeys");
+                throw;
             }
-            return Enumerable.Empty<Journey>();
         }
     }
 }
