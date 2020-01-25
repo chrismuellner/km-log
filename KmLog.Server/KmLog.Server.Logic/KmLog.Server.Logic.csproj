@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KmLog.Server.Dal\KmLog.Server.Dal.csproj" />
-    <ProjectReference Include="..\KmLog.Server.DTO\KmLog.Server.DTO.csproj" />
+    <ProjectReference Include="..\KmLog.Server.Dto\KmLog.Server.Dto.csproj" />
   </ItemGroup>
 
 </Project>

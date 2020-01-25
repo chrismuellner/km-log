@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KmLog.Server.DTO.Base;
+using KmLog.Server.Dto.Base;
 using KmLog.Server.Model.Base;
 
 namespace KmLog.Server.Dal.Base
 {
     public interface IBaseRepository<TEntity, TDTO> 
         where TEntity : IdentifiableBase
-        where TDTO : IdentifiableBaseDTO
+        where TDTO : IdentifiableBaseDto
     {
         Task Add(IEnumerable<TDTO> entities);
 

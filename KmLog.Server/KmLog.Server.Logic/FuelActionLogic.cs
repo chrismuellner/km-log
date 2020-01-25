@@ -1,31 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
-using KmLog.Server.DTO;
-using KmLog.Server.Model;
+using KmLog.Server.Dto;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
 {
-    public class KmLogLogic
+    public class FuelActionLogic
     {
-        private readonly ILogger<KmLogLogic> _logger;
+        private readonly ILogger<FuelActionLogic> _logger;
         private readonly IJourneyRepository _journeyRepository;
 
-        public KmLogLogic(ILogger<KmLogLogic> logger, IJourneyRepository journeyRepository)
+        public FuelActionLogic(ILogger<FuelActionLogic> logger, IJourneyRepository journeyRepository)
         {
             _logger = logger;
             _journeyRepository = journeyRepository;
         }
 
-        public async Task<JourneyDTO> Add(JourneyDTO journey)
+        public async Task<RefuelActionDto> Add(RefuelActionDto refuelAction)
         {
             try
             {
-                await _journeyRepository.Add(journey);
-                return journey;
+                await _journeyRepository.Add(refuelAction);
+                return refuelAction;
             }
             catch (Exception ex)
             {
@@ -34,7 +32,7 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<JourneyDTO>> LoadAll()
+        public async Task<IEnumerable<RefuelActionDto>> LoadAll()
         {
             try
             {

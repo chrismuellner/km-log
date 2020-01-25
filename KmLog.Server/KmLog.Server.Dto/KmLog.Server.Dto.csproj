@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <AssemblyName>KmLog.Server.Dto</AssemblyName>
+        <RootNamespace>KmLog.Server.Dto</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\KmLog.Server.Domain\KmLog.Server.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

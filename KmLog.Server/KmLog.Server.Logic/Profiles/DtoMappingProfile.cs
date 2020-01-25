@@ -1,5 +1,5 @@
 using AutoMapper;
-using KmLog.Server.DTO;
+using KmLog.Server.Dto;
 using KmLog.Server.Model;
 
 namespace KmLog.Server.Logic.Profiles
@@ -8,7 +8,8 @@ namespace KmLog.Server.Logic.Profiles
     {
         public DtoMappingProfile()
         {
-            CreateMap<Journey, JourneyDTO>();
+            CreateMap<RefuelAction, RefuelActionDto>();
+            CreateMap<Car, CarDto>();
         }
     }
 }

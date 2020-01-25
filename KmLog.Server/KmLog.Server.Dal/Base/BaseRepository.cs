@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using KmLog.Server.DTO.Base;
+using KmLog.Server.Dto.Base;
 using KmLog.Server.EF;
 using KmLog.Server.Model.Base;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ namespace KmLog.Server.Dal.Base
 {
     public class BaseRepository<TEntity, TDto> : IBaseRepository<TEntity, TDto>
         where TEntity : IdentifiableBase
-        where TDto : IdentifiableBaseDTO
+        where TDto : IdentifiableBaseDto
     {
         protected KmLogContext Context { get; }
         protected IMapper Mapper { get; }
