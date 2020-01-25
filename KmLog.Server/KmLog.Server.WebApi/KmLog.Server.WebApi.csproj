@@ -4,5 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KmLog.Server.EF\KmLog.Server.EF.csproj" />
+    <ProjectReference Include="..\KmLog.Server.Logic\KmLog.Server.Logic.csproj" />
+  </ItemGroup>
+
 
 </Project>
