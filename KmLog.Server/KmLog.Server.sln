@@ -14,7 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KmLog.Server.Logic", "KmLog
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KmLog.Server.EF", "KmLog.Server.EF\KmLog.Server.EF.csproj", "{798E7614-7C2B-48DB-B8DB-F816AB9662CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KmLog.Server.Model", "KmLog.Server.Model\KmLog.Server.Model.csproj", "{486E4ADC-FE6B-4A7B-9788-35139E45EFFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KmLog.Server.Model", "KmLog.Server.Model\KmLog.Server.Model.csproj", "{486E4ADC-FE6B-4A7B-9788-35139E45EFFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KmLog.Server.Dal", "KmLog.Server.Dal\KmLog.Server.Dal.csproj", "{A1080044-2349-49B0-8563-6EB8EFE1062C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{486E4ADC-FE6B-4A7B-9788-35139E45EFFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{486E4ADC-FE6B-4A7B-9788-35139E45EFFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{486E4ADC-FE6B-4A7B-9788-35139E45EFFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1080044-2349-49B0-8563-6EB8EFE1062C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1080044-2349-49B0-8563-6EB8EFE1062C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1080044-2349-49B0-8563-6EB8EFE1062C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1080044-2349-49B0-8563-6EB8EFE1062C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

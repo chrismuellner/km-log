@@ -1,4 +1,5 @@
-﻿using KmLog.Server.EF.DI;
+﻿using KmLog.Server.Dal.DI;
+using KmLog.Server.EF.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ namespace KmLog.Server.WebApi
             services.AddControllers();
 
             services.AddDbContext(Configuration);
+            services.AddRepositories();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

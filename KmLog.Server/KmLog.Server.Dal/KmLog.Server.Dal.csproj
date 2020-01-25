@@ -1,14 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KmLog.Server.Dal\KmLog.Server.Dal.csproj" />
     <ProjectReference Include="..\KmLog.Server.EF\KmLog.Server.EF.csproj" />
-    <ProjectReference Include="..\KmLog.Server.Logic\KmLog.Server.Logic.csproj" />
   </ItemGroup>
-
 
 </Project>
