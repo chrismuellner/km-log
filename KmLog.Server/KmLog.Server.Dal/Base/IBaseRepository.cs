@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Model.Base;
 
@@ -16,7 +15,7 @@ namespace KmLog.Server.Dal.Base
 
         Task<T> GetById(Guid id);
 
-        IQueryable<T> Query();
+        Task<IEnumerable<T>> LoadAll();
 
         Task Update(T entity);
     }

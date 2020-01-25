@@ -17,9 +17,16 @@ namespace KmLog.Server.Dal.Base
             Context = context;
         }
 
-        public IQueryable<T> Query()
+        protected IQueryable<T> Query()
         {
             return Context.Set<T>().AsNoTracking();
+        }
+
+        public async Task<IEnumerable<T>> LoadAll()
+        {
+            return await Context.Set<T>()
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<T> GetById(Guid id)
