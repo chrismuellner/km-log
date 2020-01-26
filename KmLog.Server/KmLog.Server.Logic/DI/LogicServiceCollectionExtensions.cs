@@ -10,6 +10,7 @@ namespace KmLog.Server.Logic.DI
         public static IServiceCollection AddLogic(this IServiceCollection services)
         {
             services.AddScoped<FuelActionLogic>();
+            services.AddScoped<CarLogic>();
 
             return services;
         }

@@ -9,7 +9,8 @@ namespace KmLog.Server.Dal.DI
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IJourneyRepository, JourneyRepository>();
+            services.AddScoped<IRefuelActionRepository, RefuelActionRepository>();
+            services.AddScoped<ICarRepository, CarRepository>();
 
             return services;
         }

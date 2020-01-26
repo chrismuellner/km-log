@@ -23,15 +23,14 @@ namespace KmLog.Server.Dal.Base
             Mapper = mapper;
         }
 
-        protected IQueryable<TEntity> Query()
+        protected virtual IQueryable<TEntity> Query()
         {
             return Context.Set<TEntity>().AsNoTracking();
         }
 
         public async Task<IEnumerable<TDto>> LoadAll()
         {
-            var entities = await Context.Set<TEntity>()
-                .AsNoTracking()
+            var entities = await Query()
                 .ToListAsync();
 
             return Mapper.Map<IEnumerable<TDto>>(entities);
@@ -39,8 +38,7 @@ namespace KmLog.Server.Dal.Base
 
         public async Task<TDto> GetById(Guid id)
         {
-            var entity = await Context.Set<TEntity>()
-                .AsNoTracking()
+            var entity = Query()
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             return Mapper.Map<TDto>(entity);

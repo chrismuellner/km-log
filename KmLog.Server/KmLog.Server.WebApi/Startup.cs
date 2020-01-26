@@ -43,6 +43,8 @@ namespace KmLog.Server.WebApi
 
             app.UseAuthorization();
 
+            app.UseCors(cfg => cfg.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

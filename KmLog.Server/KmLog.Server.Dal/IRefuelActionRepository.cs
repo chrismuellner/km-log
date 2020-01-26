@@ -4,7 +4,7 @@ using KmLog.Server.Model;
 
 namespace KmLog.Server.Dal
 {
-    public interface IJourneyRepository : IBaseRepository<RefuelAction, RefuelActionDto>
+    public interface IRefuelActionRepository : IBaseRepository<RefuelAction, RefuelActionDto>
     {
     }
 }
