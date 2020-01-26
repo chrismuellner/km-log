@@ -1,12 +1,13 @@
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CarController : ControllerBase

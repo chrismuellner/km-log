@@ -1,16 +1,15 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
-using KmLog.Server.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RefuelActionController : ControllerBase
@@ -45,11 +44,11 @@ namespace KmLog.Server.WebApi.Controllers
             {
                 return BadRequest();
             }
-            
+
             var fileStream = csvFile.OpenReadStream();
             var fileName = csvFile.FileName;
-            
-            var refuelActions = await _fuelActionLogic.ImportCsv(carGuid, fileStream, fileName);   
+
+            var refuelActions = await _fuelActionLogic.ImportCsv(carGuid, fileStream, fileName);
             return Ok(refuelActions);
         }
     }

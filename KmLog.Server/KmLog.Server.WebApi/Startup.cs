@@ -1,6 +1,9 @@
-﻿using KmLog.Server.Dal.DI;
+﻿using System.Text.Json.Serialization;
+using KmLog.Server.Dal.DI;
 using KmLog.Server.EF.DI;
 using KmLog.Server.Logic.DI;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +14,10 @@ namespace KmLog.Server.WebApi
 {
     public class Startup
     {
+        private const string AzureSection = "Azure";
+        private const string ClientIdKey = "ClientId";
+        private const string ClientSecretKey = "ClientSecret";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -18,10 +25,28 @@ namespace KmLog.Server.WebApi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddAuthentication(opts =>
+            {
+                opts.DefaultChallengeScheme = MicrosoftAccountDefaults.AuthenticationScheme;
+                opts.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                opts.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddMicrosoftAccount(opts =>
+            {
+                var azureSection = Configuration.GetSection(AzureSection);
+
+                opts.ClientId = azureSection[ClientIdKey];
+                opts.ClientSecret = azureSection[ClientSecretKey];
+                //opts.ReturnUrlParameter = "http://localhost:4141/Authentication/signin-microsoft";
+            });
+
+            services.AddControllers().AddJsonOptions(opts =>
+            {
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             services.AddDbContext(Configuration);
             services.AddAutoMapper();
@@ -29,7 +54,6 @@ namespace KmLog.Server.WebApi
             services.AddLogic();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

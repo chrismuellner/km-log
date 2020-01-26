@@ -11,6 +11,7 @@ namespace KmLog.Server.Logic.DI
         {
             services.AddScoped<FuelActionLogic>();
             services.AddScoped<CarLogic>();
+            services.AddScoped<AuthenticationLogic>();
 
             return services;
         }
