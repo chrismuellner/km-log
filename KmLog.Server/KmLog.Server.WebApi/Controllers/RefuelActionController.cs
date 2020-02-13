@@ -11,7 +11,7 @@ namespace KmLog.Server.WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class RefuelActionController : ControllerBase
     {
         private readonly ILogger<RefuelActionController> _logger;

@@ -1,0 +1,11 @@
+{
+    "Version": 3,
+    "ListAllProjects": false,
+    "MultiProjectConfigurations": {
+        "Api": {
+            "Projects": {
+                "KmLog.Server.WebApi": {}
+            }
+        }
+    }
+}

@@ -9,7 +9,7 @@ namespace KmLog.Server.WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CarController : ControllerBase
     {
         private readonly ILogger<CarController> _logger;

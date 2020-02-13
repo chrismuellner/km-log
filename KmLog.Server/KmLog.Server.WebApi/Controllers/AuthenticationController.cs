@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Threading.Tasks;
+using KmLog.Server.Dto;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.WebApi.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
+
+        private static readonly UserInfoDto LoggedOutUser = new UserInfoDto { IsAuthenticated = false };
 
         public AuthenticationController(ILogger<AuthenticationController> logger)
         {
@@ -22,9 +22,31 @@ namespace KmLog.Server.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public UserInfoDto GetUser()
         {
-            return Ok();
+            return User.Identity.IsAuthenticated
+                ? new UserInfoDto { Name = User.Identity.Name, IsAuthenticated = true }
+                : LoggedOutUser;
+        }
+
+        [HttpGet("signin")]
+        public async Task SignIn(string redirectUri)
+        {
+            if (string.IsNullOrEmpty(redirectUri) || !Url.IsLocalUrl(redirectUri))
+            {
+                redirectUri = "/";
+            }
+
+            await HttpContext.ChallengeAsync(
+                MicrosoftAccountDefaults.AuthenticationScheme,
+                new AuthenticationProperties { RedirectUri = redirectUri });
+        }
+
+        [HttpGet("signout")]
+        public async Task<IActionResult> SignOut()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Redirect("~/");
         }
     }
 }

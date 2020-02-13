@@ -1,0 +1,16 @@
+﻿<div class="user-info">
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <div>
+                <span class="username">@context.User.Identity.Name</span>
+                <a class="sign-out" href="api/authentication/signout">Sign out</a>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <a class="sign-in" href="api/authentication/signin">Sign in</a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
