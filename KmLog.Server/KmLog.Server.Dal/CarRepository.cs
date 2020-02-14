@@ -1,4 +1,7 @@
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using KmLog.Server.Dal.Base;
 using KmLog.Server.Dto;
@@ -13,10 +16,19 @@ namespace KmLog.Server.Dal
         public CarRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }
 
+        public async Task<IEnumerable<CarDto>> LoadByUser(Guid userId)
+        {
+            var cars = await Query()
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
+            return Mapper.Map<IEnumerable<CarDto>>(cars);
+        }
+
         protected override IQueryable<Car> Query()
         {
             return base.Query()
-                .Include(c => c.Journeys);
+                .Include(c => c.RefuelActions);
         }
     }
 }

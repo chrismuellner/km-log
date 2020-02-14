@@ -36,9 +36,9 @@ namespace KmLog.Server.Dal.Base
             return Mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public async Task<TDto> GetById(Guid id)
+        public async Task<TDto> LoadById(Guid id)
         {
-            var entity = Query()
+            var entity = await Query()
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             return Mapper.Map<TDto>(entity);
@@ -76,7 +76,7 @@ namespace KmLog.Server.Dal.Base
 
         public async Task Delete(Guid id)
         {
-            var dto = await GetById(id);
+            var dto = await LoadById(id);
             var entity = Mapper.Map<TEntity>(dto);
             
             Context.Set<TEntity>().Remove(entity);

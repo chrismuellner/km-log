@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
-using KmLog.Server.Dto;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using KmLog.Server.Domain;
+using KmLog.Server.Logic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -13,20 +15,42 @@ namespace KmLog.Server.WebApi.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
+        private readonly AuthenticationLogic _authenticationLogic;
 
-        private static readonly UserInfoDto LoggedOutUser = new UserInfoDto { IsAuthenticated = false };
+        private static readonly UserInfo LoggedOutUser = new UserInfo { IsAuthenticated = false };
 
-        public AuthenticationController(ILogger<AuthenticationController> logger)
+        public AuthenticationController(ILogger<AuthenticationController> logger, AuthenticationLogic authenticationLogic)
         {
             _logger = logger;
+            _authenticationLogic = authenticationLogic;
         }
 
         [HttpGet]
-        public UserInfoDto GetUser()
+        public async Task<IActionResult> GetUser()
         {
-            return User.Identity.IsAuthenticated
-                ? new UserInfoDto { Name = User.Identity.Name, IsAuthenticated = true }
-                : LoggedOutUser;
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            if (claimsIdentity.IsAuthenticated)
+            {
+                var email = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email != null)
+                {
+                    await _authenticationLogic.CreateUserIfNew(email);
+                    _logger.LogInformation($"Accessed user with email '{email}'.");
+                } 
+                else
+                {
+                    return BadRequest();
+                }
+
+                var user = new UserInfo
+                {
+                    Name = claimsIdentity.Name,
+                    IsAuthenticated = true
+                };
+                return Ok(user);
+            }
+            return Ok(LoggedOutUser);
         }
 
         [HttpGet("signin")]

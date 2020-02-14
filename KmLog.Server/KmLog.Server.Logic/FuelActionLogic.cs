@@ -34,73 +34,37 @@ namespace KmLog.Server.Logic
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding new journey");
+                _logger.LogError(ex, "Error adding new action");
                 throw;
             }
         }
 
-        public async Task<IEnumerable<RefuelActionDto>> LoadAll()
+        public async Task<IEnumerable<RefuelActionInfoDto>> LoadByCarId(Guid carId)
         {
             try
             {
-                var fuelActions = await _refuelActionRepository.LoadAll();
+                var fuelActions = await _refuelActionRepository.LoadByCarId(carId);
                 return fuelActions;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading all journeys");
+                _logger.LogError(ex, "Error loading all actions by car id");
                 throw;
             }
         }
 
-        public async Task<IEnumerable<RefuelActionDto>> ImportCsv(Guid carId, Stream fileStream, string fileName)
+        public async Task<IEnumerable<RefuelActionInfoDto>> LoadByCarLicensePlate(string licensePlate)
         {
-            var car = await _carRepository.GetById(carId);
-            if (car == null)
+            try
             {
-                var licensePlate = fileName.Split("_").First();
-                car = new CarDto
-                {
-                    LicensePlate = licensePlate
-                };
-                await _carRepository.Add(car);
+                var fuelActions = await _refuelActionRepository.LoadByCarLicensePlate(licensePlate);
+                return fuelActions;
             }
-            
-            var refuelActions = new List<RefuelActionDto>();
-            
-            using var reader = new StreamReader(fileStream);
-            while (!reader.EndOfStream)
+            catch (Exception ex)
             {
-                var line = await reader.ReadLineAsync();
-                var attr = line
-                    .Split(";")
-                    .Select(str => str.Replace("\"", ""))
-                    .ToArray();
-
-                var culture = CultureInfo.CreateSpecificCulture("de-AT");
-                if (!DateTime.TryParseExact(attr[0], "yyyy_MM_dd", 
-                        CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ||
-                    !double.TryParse(attr[2], NumberStyles.Any, culture, out var totalDistance) ||
-                    !double.TryParse(attr[3], NumberStyles.Any, culture, out var totalCost) ||
-                    !double.TryParse(attr[4], NumberStyles.Any, culture, out var amount) ||
-                    !double.TryParse(attr[5], NumberStyles.Any, culture, out var pricePerLiter))
-                {
-                    continue;
-                }
-
-                var refuelAction = new RefuelActionDto
-                {
-                    Date = date,
-                    Amount = Math.Round(amount, 2),
-                    Cost = Math.Round(totalCost, 2),
-                    TotalDistance = Math.Round(totalDistance, 2),
-                    CarId = car.Id
-                };
-                refuelActions.Add(refuelAction);
+                _logger.LogError(ex, "Error loading all actions by license plate");
+                throw;
             }
-
-            await _refuelActionRepository.Add(refuelActions);
-            return refuelActions;
         }
     }
 }

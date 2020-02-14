@@ -23,10 +23,22 @@ namespace KmLog.Server.WebApi.Controllers
             _fuelActionLogic = fuelActionLogic;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> LoadAll()
+        [HttpGet("id/{carId}")]
+        public async Task<IActionResult> LoadByCarId(string carId)
         {
-            var fuelActions = await _fuelActionLogic.LoadAll();
+            if (!Guid.TryParse(carId, out var carGuid))
+            {
+                return BadRequest();
+            }
+
+            var fuelActions = await _fuelActionLogic.LoadByCarId(carGuid);
+            return Ok(fuelActions);
+        }
+
+        [HttpGet("{licensePlate}")]
+        public async Task<IActionResult> LoadByCarLicensePlate(string licensePlate)
+        {
+            var fuelActions = await _fuelActionLogic.LoadByCarLicensePlate(licensePlate);
             return Ok(fuelActions);
         }
 
@@ -35,21 +47,6 @@ namespace KmLog.Server.WebApi.Controllers
         {
             var added = await _fuelActionLogic.Add(carId, refuelAction);
             return Ok(added);
-        }
-
-        [HttpPost("{carId}/csv")]
-        public async Task<IActionResult> UploadCsv(string carId, IFormFile csvFile)
-        {
-            if (!Guid.TryParse(carId, out var carGuid))
-            {
-                return BadRequest();
-            }
-
-            var fileStream = csvFile.OpenReadStream();
-            var fileName = csvFile.FileName;
-
-            var refuelActions = await _fuelActionLogic.ImportCsv(carGuid, fileStream, fileName);
-            return Ok(refuelActions);
         }
     }
 }

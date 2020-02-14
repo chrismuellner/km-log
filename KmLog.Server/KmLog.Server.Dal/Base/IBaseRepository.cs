@@ -16,7 +16,7 @@ namespace KmLog.Server.Dal.Base
 
         Task Delete(Guid id);
 
-        Task<TDTO> GetById(Guid id);
+        Task<TDTO> LoadById(Guid id);
 
         Task<IEnumerable<TDTO>> LoadAll();
 

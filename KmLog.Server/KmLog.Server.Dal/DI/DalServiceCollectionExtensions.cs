@@ -11,6 +11,7 @@ namespace KmLog.Server.Dal.DI
         {
             services.AddScoped<IRefuelActionRepository, RefuelActionRepository>();
             services.AddScoped<ICarRepository, CarRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

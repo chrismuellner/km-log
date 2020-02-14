@@ -1,7 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +29,9 @@ namespace KmLog.Server.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAll()
         {
-            var cars = await _carLogic.LoadAll();
+            var email = GetEmail(User.Identity);
+
+            var cars = await _carLogic.LoadByUser(email);
             return Ok(cars);
         }
 
@@ -33,6 +40,34 @@ namespace KmLog.Server.WebApi.Controllers
         {
             var added = await _carLogic.Add(car);
             return Ok(added);
+        }
+
+        [HttpPost("csv")]
+        public async Task<IActionResult> UploadCsv()
+        {
+            if (HttpContext.Request.Form.Files.Any())
+            {
+                var file = HttpContext.Request.Form.Files.First();
+                var fileStream = file.OpenReadStream();
+                var fileName = file.FileName;
+
+                var email = GetEmail(User.Identity);
+
+                var refuelActions = await _carLogic.ImportCsv(email, fileStream, fileName);
+                if (refuelActions == null)
+                {
+                    return NotFound();
+                }
+                return Ok(refuelActions);
+            }
+            return BadRequest();
+        }
+
+        private string GetEmail(IIdentity identity)
+        {
+            var claimsIdentity = identity as ClaimsIdentity;
+            var email = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
+            return email;
         }
     }
 }

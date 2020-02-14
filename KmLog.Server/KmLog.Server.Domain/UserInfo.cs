@@ -1,6 +1,6 @@
-﻿namespace KmLog.Server.Dto
+﻿namespace KmLog.Server.Domain
 {
-    public class UserInfoDto
+    public class UserInfo
     {
         public bool IsAuthenticated { get; set; }
         public string Name { get; set; }

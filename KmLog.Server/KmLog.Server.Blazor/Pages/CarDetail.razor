@@ -1,0 +1,49 @@
+﻿@page "/car/{licensePlate}"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@attribute [Authorize]
+
+<h2>@LicensePlate</h2>
+
+@if (RefuelActions != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Cost</th>
+                <th scope="col">TotalDistance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var refuelAction in RefuelActions)
+            {
+                <tr>
+                    <th scope="row">@refuelAction.Date.ToLongDateString()</th>
+                    <td>@refuelAction.Amount l</td>
+                    <td>@refuelAction.Cost €</td>
+                    <td>@refuelAction.TotalDistance km</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    [Parameter] public string LicensePlate { get; set; }
+
+    public IEnumerable<RefuelActionInfoDto> RefuelActions { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"api/authentication/signin?redirectUri=/car/{LicensePlate}", true);
+        }
+
+        RefuelActions = await HttpClient.GetJsonAsync<IEnumerable<RefuelActionInfoDto>>($"api/refuelaction/{LicensePlate}");
+    }
+}

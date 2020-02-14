@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using KmLog.Server.Dto;
+using KmLog.Server.Domain;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -18,7 +18,7 @@ namespace KmLog.Server.Blazor
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var userInfo = await _httpClient.GetJsonAsync<UserInfoDto>("api/authentication");
+            var userInfo = await _httpClient.GetJsonAsync<UserInfo>("api/authentication");
 
             var identity = userInfo.IsAuthenticated
                 ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInfo.Name) }, "serverauth")

@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using KmLog.Server.Model;
+﻿using KmLog.Server.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.EF
@@ -13,9 +12,9 @@ namespace KmLog.Server.EF
             _connectionString = connectionString;
         }
 
-        public DbSet<RefuelAction> RefuelActions { get; set; }
-
         public DbSet<Car> Cars { get; set; }
+        public DbSet<RefuelAction> RefuelActions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
