@@ -43,7 +43,10 @@
         {
             NavigationManager.NavigateTo($"api/authentication/signin?redirectUri=/car/{LicensePlate}", true);
         }
+    }
 
+    protected override async Task OnParametersSetAsync()
+    {
         RefuelActions = await HttpClient.GetJsonAsync<IEnumerable<RefuelActionInfoDto>>($"api/refuelaction/{LicensePlate}");
     }
 }
