@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
+using KmLog.Server.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +27,7 @@ namespace KmLog.Server.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAll()
         {
-            var email = GetEmail(User.Identity);
+            var email = User.GetEmail();
 
             var cars = await _carLogic.LoadByUser(email);
             return Ok(cars);
@@ -51,7 +49,7 @@ namespace KmLog.Server.WebApi.Controllers
                 var fileStream = file.OpenReadStream();
                 var fileName = file.FileName;
 
-                var email = GetEmail(User.Identity);
+                var email = User.GetEmail();
 
                 var refuelActions = await _carLogic.ImportCsv(email, fileStream, fileName);
                 if (refuelActions == null)
@@ -61,13 +59,6 @@ namespace KmLog.Server.WebApi.Controllers
                 return Ok(refuelActions);
             }
             return BadRequest();
-        }
-
-        private string GetEmail(IIdentity identity)
-        {
-            var claimsIdentity = identity as ClaimsIdentity;
-            var email = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
-            return email;
         }
     }
 }

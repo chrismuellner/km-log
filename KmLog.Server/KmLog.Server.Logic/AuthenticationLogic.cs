@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
-using KmLog.Server.Dto;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
@@ -17,24 +16,15 @@ namespace KmLog.Server.Logic
             _userRepository = userRepository;
         }
 
-        public async Task CreateUserIfNew(string email)
+        public async Task<bool> CheckEmailExists(string email)
         {
             try
             {
-                var user = await _userRepository.LoadByEmail(email);
-
-                if (user == null)
-                {
-                    await _userRepository.Add(new UserDto
-                    {
-                        Email = email
-                    });
-                    _logger.LogInformation($"Created new user with email '{email}'");
-                }
-            } 
+                return await _userRepository.CheckByEmail(email);
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding new user");
+                _logger.LogError(ex, "Error checking user by email");
                 throw;
             }
         }

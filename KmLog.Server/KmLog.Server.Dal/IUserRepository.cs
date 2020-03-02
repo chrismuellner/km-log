@@ -7,6 +7,8 @@ namespace KmLog.Server.Dal
 {
     public interface IUserRepository : IBaseRepository<User, UserDto>
     {
+        Task<bool> CheckByEmail(string email);
+
         Task<UserDto> LoadByEmail(string email);
     }
 }

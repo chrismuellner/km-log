@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using KmLog.Server.Domain;
 using KmLog.Server.Model.Base;
 
 namespace KmLog.Server.Model
@@ -7,5 +8,7 @@ namespace KmLog.Server.Model
     {
         [Required]
         public string Email { get; set; }
+
+        public UserRole? Role { get; set; }
     }
 }

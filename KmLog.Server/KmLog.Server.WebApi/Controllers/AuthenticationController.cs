@@ -32,23 +32,20 @@ namespace KmLog.Server.WebApi.Controllers
             if (claimsIdentity.IsAuthenticated)
             {
                 var email = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
-
-                if (email != null)
+                if (email != null && await _authenticationLogic.CheckEmailExists(email))
                 {
-                    await _authenticationLogic.CreateUserIfNew(email);
-                    _logger.LogInformation($"Accessed user with email '{email}'.");
+                    return Ok(new UserInfo
+                    {
+                        Name = claimsIdentity.Name,
+                        IsAuthenticated = true
+                    });
                 } 
                 else
                 {
-                    return BadRequest();
+                    _logger.LogWarning($"Unregistered user with email '{email}' tried to login!");
+                    return Unauthorized();
                 }
-
-                var user = new UserInfo
-                {
-                    Name = claimsIdentity.Name,
-                    IsAuthenticated = true
-                };
-                return Ok(user);
+                
             }
             return Ok(LoggedOutUser);
         }
