@@ -3,8 +3,17 @@
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
 
-<h2>Import existing file</h2>
-<InputFile OnChange="HandleSelection" />
+<div class="col">
+    <div class="card row">
+        <div class="card-header">
+            Import existing file
+        </div>
+        <div class="card-body">
+            <InputFile OnChange="HandleSelection" />
+        </div>
+    </div>
+    <AddEntryComponent />
+</div>
 
 @code {
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }

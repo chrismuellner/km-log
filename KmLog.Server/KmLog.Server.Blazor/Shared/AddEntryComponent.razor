@@ -1,0 +1,116 @@
+﻿@inject HttpClient HttpClient
+
+<div class="card row">
+    <div class="card-body">
+        <div class="card-title">Add new Entry</div>
+        <EditForm Model=@FormData OnValidSubmit=@FormSubmitted>
+            <DataAnnotationsValidator />
+
+            @if (ActiveCar == null)
+            {
+            <div class="form-group">
+                <label for="formGroupCar">Car</label>
+                <InputSelect @bind-Value=FormData.Car class="form-control" id="formGroupCar" @onchange="@CarChanged">
+                    @if (Cars != null)
+                    {
+                        @foreach (var car in Cars)
+                        {
+                            <option value="@car">@car.LicensePlate</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            }
+            <div class="form-group">
+                <label for="formGroupDate">Date</label>
+                <InputDate @bind-Value=FormData.Date ParsingErrorMessage="Must be a date"
+                           class="form-control" id="formGroupDate" placeholder="Date" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupDistance">Total Distance (km)</label>
+                <InputNumber @bind-Value=FormData.TotalDistance ParsingErrorMessage="Must be a decimal value"
+                             class="form-control" id="formGroupDistance" placeholder="Total Distance" min="0" />
+                <ValidationMessage For="() => FormData.TotalDistance" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupAmount">Amount (l)</label>
+                <InputNumber @bind-Value=FormData.Amount ParsingErrorMessage="Must be a decimal value"
+                             class="form-control" id="formGroupAmount" placeholder="Amount" min="0" />
+                <ValidationMessage For="() => FormData.Amount" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupCost">Cost (€)</label>
+                <InputNumber @bind-Value=FormData.Cost ParsingErrorMessage="Must be a decimal value"
+                             class="form-control" id="formGroupCost" placeholder="Cost" min="0" />
+                <ValidationMessage For="() => FormData.Cost" />
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CarDto ActiveCar { get; set; }
+
+    IEnumerable<CarDto> Cars { get; set; }
+    RefuelActionFormData FormData { get; set; } = new RefuelActionFormData
+    {
+        Date = DateTime.Today
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ActiveCar == null) {
+            Cars = await HttpClient.GetJsonAsync<IEnumerable<CarDto>>("api/car");
+
+            FormData.Car = Cars.FirstOrDefault();
+        }
+        else
+        {
+            FormData.Car = ActiveCar;
+        }
+        
+        CarChanged();
+    }
+
+    async Task FormSubmitted()
+    {
+        var refuelAction = new RefuelActionInfoDto
+        {
+            CarId = FormData.Car.Id,
+            Date = FormData.Date,
+            TotalDistance = FormData.TotalDistance,
+            Amount = FormData.Amount,
+            Cost = FormData.Cost
+        };
+        await HttpClient.PutJsonAsync("api/refuelaction", refuelAction);
+    }
+
+    void CarChanged()
+    {
+        if (FormData.TotalDistance == 0)
+            FormData.TotalDistance = FormData.Car.RefuelActions.FirstOrDefault()?.TotalDistance ?? 0;
+    }
+
+    class RefuelActionFormData
+    {
+        [Required]
+        public CarDto Car { get; set; }
+
+        [Required]
+        public DateTime Date { get; set; }
+
+        [Required(ErrorMessage = "Total Distance is required.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public double TotalDistance { get; set; }
+
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public double Amount { get; set; }
+
+        [Required(ErrorMessage = "Cost is required.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public double Cost { get; set; }
+    }
+}

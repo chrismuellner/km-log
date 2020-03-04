@@ -42,10 +42,15 @@ namespace KmLog.Server.WebApi.Controllers
             return Ok(fuelActions);
         }
 
-        [HttpPut("{carId}")]
-        public async Task<IActionResult> Add([FromQuery] Guid carId, [FromBody] RefuelActionDto refuelAction)
+        [HttpPut]
+        public async Task<IActionResult> Add([FromBody] RefuelActionDto refuelAction)
         {
-            var added = await _fuelActionLogic.Add(carId, refuelAction);
+            if (refuelAction.CarId == Guid.Empty)
+            {
+                return BadRequest();
+            }
+
+            var added = await _fuelActionLogic.Add(refuelAction);
             return Ok(added);
         }
     }

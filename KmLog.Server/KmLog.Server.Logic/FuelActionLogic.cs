@@ -24,11 +24,10 @@ namespace KmLog.Server.Logic
             _carRepository = carRepository;
         }
 
-        public async Task<RefuelActionDto> Add(Guid carId, RefuelActionDto refuelAction)
+        public async Task<RefuelActionDto> Add(RefuelActionDto refuelAction)
         {
             try
             {
-                refuelAction.CarId = carId;
                 await _refuelActionRepository.Add(refuelAction);
                 return refuelAction;
             }
