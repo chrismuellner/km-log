@@ -5,36 +5,83 @@
 
 <h2>@LicensePlate</h2>
 
-@if (RefuelActions != null)
+@if (PagingResult != null)
 {
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th scope="col">Date</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Cost</th>
-                <th scope="col">TotalDistance</th>
+                <th scope="col">Total Distance</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var refuelAction in RefuelActions)
+            @foreach (var refuelAction in PagingResult.Items)
             {
                 <tr>
-                    <th scope="row">@refuelAction.Date.ToLongDateString()</th>
-                    <td>@refuelAction.Amount l</td>
-                    <td>@refuelAction.Cost €</td>
-                    <td>@refuelAction.TotalDistance km</td>
+                    <th scope="row">@refuelAction.Date.ToShortDateString()</th>
+                    <td>@refuelAction.Amount.ToString("N2") l</td>
+                    <td>@refuelAction.Cost.ToString("N2") €</td>
+                    <td>@refuelAction.TotalDistance.ToString("N0") km</td>
                 </tr>
             }
         </tbody>
     </table>
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (PagingParams.PageIndex > 0)
+            {
+                <li class="page-item">
+                    <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex - 1)" href="javascript:void(0)">Previous</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" @onclick="() => PagingChanged(0)" href="javascript:void(0)">1</a>
+                </li>
+            }
+            @if (PagingParams.PageIndex > 1)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1">...</a>
+                </li>
+            }
+            <li class="page-item active">
+                <a class="page-link" tabindex="-1">@CurrentPage</a>
+            </li>
+            @if (TotalPages > 1 && PagingParams.PageIndex < TotalPages - 1)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1">...</a>
+                </li>
+            }
+            @if (PagingParams.PageIndex < TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" @onclick="() => PagingChanged(TotalPages)" href="javascript:void(0)">
+                        @TotalPagesPlus1
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex + 1)" href="javascript:void(0)">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
 }
 
 @code {
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
-    [Parameter] public string LicensePlate { get; set; }
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    public IEnumerable<RefuelActionInfoDto> RefuelActions { get; set; }
+    [Parameter]
+    public string LicensePlate { get; set; }
+
+    PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
+    PagingResult<RefuelActionInfoDto> PagingResult { get; set; }
+
+    int TotalPages => PagingResult != null ? PagingResult.Count / PagingParams.PageSize : 0;
+    int TotalPagesPlus1 => TotalPages + 1;
+    int CurrentPage => PagingParams.PageIndex + 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,6 +94,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        RefuelActions = await HttpClient.GetJsonAsync<IEnumerable<RefuelActionInfoDto>>($"api/refuelaction/{LicensePlate}");
+        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelActionInfoDto>>($"api/refuelaction/{LicensePlate}");
+    }
+
+    async Task PagingChanged(int page)
+    {
+        PagingParams.PageIndex = page;
+        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelActionInfoDto>>(
+            $"api/refuelaction/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
     }
 }

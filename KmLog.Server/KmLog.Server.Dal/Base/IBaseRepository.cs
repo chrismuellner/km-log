@@ -1,25 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto.Base;
 using KmLog.Server.Model.Base;
 
 namespace KmLog.Server.Dal.Base
 {
-    public interface IBaseRepository<TEntity, TDTO> 
+    public interface IBaseRepository<TEntity, TDto>
         where TEntity : IdentifiableBase
-        where TDTO : IdentifiableBaseDto
+        where TDto : IdentifiableBaseDto
     {
-        Task Add(IEnumerable<TDTO> entities);
+        Task Add(IEnumerable<TDto> entities);
 
-        Task Add(TDTO entity);
+        Task Add(TDto entity);
 
         Task Delete(Guid id);
 
-        Task<TDTO> LoadById(Guid id);
+        Task<TDto> LoadById(Guid id);
 
-        Task<IEnumerable<TDTO>> LoadAll();
+        Task<IEnumerable<TDto>> LoadAll();
 
-        Task Update(TDTO entity);
+        Task Update(TDto entity);
+
+        Task<PagingResult<TDto>> LoadPaged<TKey>(PagingParameters pagingParameters,
+                                                 Expression<Func<TEntity, TKey>> order,
+                                                 Expression<Func<TEntity, bool>> predicate = null);
     }
 }

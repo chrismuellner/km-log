@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto.Base;
 using KmLog.Server.EF;
 using KmLog.Server.Model.Base;
@@ -44,10 +46,34 @@ namespace KmLog.Server.Dal.Base
             return Mapper.Map<TDto>(entity);
         }
 
+        public async Task<PagingResult<TDto>> LoadPaged<TKey>(PagingParameters pagingParameters, 
+                                                              Expression<Func<TEntity, TKey>> order,
+                                                              Expression<Func<TEntity, bool>> predicate = null)
+        {
+            var query = Query();
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            var entities = await query
+                .OrderByDescending(order)
+                .Skip(pagingParameters.ItemsToSkip)
+                .Take(pagingParameters.PageSize)
+                .ToListAsync();
+
+            return new PagingResult<TDto>
+            {
+                Count = await query.CountAsync(),
+                Items = Mapper.Map<IEnumerable<TDto>>(entities)
+            };
+        }
+
         public async Task Add(TDto dto)
         {
             var entity = Mapper.Map<TEntity>(dto);
-            
+
             await Context.Set<TEntity>().AddAsync(entity);
             await Context.SaveChangesAsync();
 
@@ -57,20 +83,20 @@ namespace KmLog.Server.Dal.Base
         public async Task Add(IEnumerable<TDto> dtos)
         {
             var entities = Mapper.Map<IEnumerable<TEntity>>(dtos);
-            
+
             await Context.Set<TEntity>().AddRangeAsync(entities);
             await Context.SaveChangesAsync();
-            
+
             Mapper.Map(entities, dtos);
         }
 
         public async Task Update(TDto dto)
         {
             var entity = Mapper.Map<TEntity>(dto);
-            
+
             Context.Set<TEntity>().Update(entity);
             await Context.SaveChangesAsync();
-            
+
             Mapper.Map(entity, dto);
         }
 
@@ -78,7 +104,7 @@ namespace KmLog.Server.Dal.Base
         {
             var dto = await LoadById(id);
             var entity = Mapper.Map<TEntity>(dto);
-            
+
             Context.Set<TEntity>().Remove(entity);
             await Context.SaveChangesAsync();
         }

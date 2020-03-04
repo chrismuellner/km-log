@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using Microsoft.Extensions.Logging;
 
@@ -62,6 +63,20 @@ namespace KmLog.Server.Logic
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading all actions by license plate");
+                throw;
+            }
+        }
+
+        public async Task<PagingResult<RefuelActionDto>> LoadPaged(PagingParameters pagingParameters, string licensePlate)
+        {
+            try
+            {
+                var result = await _refuelActionRepository.LoadPaged(pagingParameters, r => r.Date, r => r.Car.LicensePlate == licensePlate);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading paged actions");
                 throw;
             }
         }

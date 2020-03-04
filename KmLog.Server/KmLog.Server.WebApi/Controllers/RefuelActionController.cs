@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -36,10 +36,10 @@ namespace KmLog.Server.WebApi.Controllers
         }
 
         [HttpGet("{licensePlate}")]
-        public async Task<IActionResult> LoadByCarLicensePlate(string licensePlate)
+        public async Task<IActionResult> LoadPaged(string licensePlate, [FromQuery] PagingParameters pagingParameters)
         {
-            var fuelActions = await _fuelActionLogic.LoadByCarLicensePlate(licensePlate);
-            return Ok(fuelActions);
+            var result = await _fuelActionLogic.LoadPaged(pagingParameters, licensePlate);
+            return Ok(result);
         }
 
         [HttpPut]
