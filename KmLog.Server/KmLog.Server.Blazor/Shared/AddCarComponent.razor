@@ -1,0 +1,60 @@
+﻿@inject HttpClient HttpClient
+
+<div class="card row">
+    <div class="card-body">
+        <div class="card-title">Add new Car</div>
+        <EditForm Model=@CarData OnValidSubmit=@FormSubmitted>
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="formGroupLicense">License Plate</label>
+                <InputText @bind-Value=CarData.LicensePlate class="form-control" id="formGroupLicense" placeholder="License Plate" />
+                <ValidationMessage For="() => CarData.LicensePlate" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupFuel">Fuel Type</label>
+                <InputSelect @bind-Value=CarData.Fuel class="form-control" id="formGroupFuel">
+                    @foreach (FuelType fuelType in Enum.GetValues(typeof(FuelType)))
+                    {
+                        <option value="@fuelType">@fuelType.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => CarData.Fuel" />
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    CarFormData CarData { get; set; } = new CarFormData();
+
+    async Task FormSubmitted()
+    {
+        var car = new CarInfoDto
+        {
+            LicensePlate = CarData.LicensePlate,
+            FuelType = CarData.Fuel
+        };
+
+        try
+        {
+            await HttpClient.PutJsonAsync("api/car", car);
+        } 
+        catch (Exception ex)
+        {
+            // todo: error handling
+        }
+        CarData = new CarFormData();
+    }
+
+    class CarFormData
+    {
+        [Required(ErrorMessage = "License Plate is required.")]
+        public string LicensePlate { get; set; }
+
+        [Required(ErrorMessage = "Fuel Type is required.")]
+        public FuelType Fuel { get; set; }
+    }
+}

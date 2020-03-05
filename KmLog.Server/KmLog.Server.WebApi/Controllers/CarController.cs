@@ -36,7 +36,14 @@ namespace KmLog.Server.WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> Add([FromBody] CarDto car)
         {
-            var added = await _carLogic.Add(car);
+            var email = User.GetEmail();
+
+            var added = await _carLogic.Add(car, email);
+            if (added == null)
+            {
+                return NotFound();
+            }
+
             return Ok(added);
         }
 

@@ -26,10 +26,18 @@ namespace KmLog.Server.Logic
             _userRepository = userRepository;
         }
 
-        public async Task<CarDto> Add(CarDto car)
+        public async Task<CarDto> Add(CarDto car, string email)
         {
             try
             {
+                var user = await _userRepository.LoadByEmail(email);
+                if (user == null)
+                {
+                    return null;
+                }
+
+                car.UserId = user.Id;
+
                 await _carRepository.Add(car);
                 return car;
             }
