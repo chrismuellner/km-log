@@ -1,18 +1,10 @@
 ﻿@page "/"
-@inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
 
 <div class="col">
-    <div class="card row">
-        <div class="card-header">
-            Import existing file
-        </div>
-        <div class="card-body">
-            <InputFile OnChange="HandleSelection" />
-        </div>
-    </div>
     <AddEntryComponent />
+    <ImportCsvComponent />
 </div>
 
 @code {
@@ -24,21 +16,6 @@
         if (!authState.User.Identity.IsAuthenticated)
         {
             NavigationManager.NavigateTo("api/authentication/signin?redirectUri=/", true);
-        }
-    }
-
-    private async Task HandleSelection(IFileListEntry[] files)
-    {
-        var file = files.FirstOrDefault();
-        if (file != null)
-        {
-            var ms = new MemoryStream();
-            await file.Data.CopyToAsync(ms);
-
-            var content = new MultipartFormDataContent {
-                { new ByteArrayContent(ms.GetBuffer()), "\"upload\"", file.Name }
-            };
-            await HttpClient.PostAsync("api/car/csv", content);
         }
     }
 }
