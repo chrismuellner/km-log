@@ -52,6 +52,7 @@
     class CarFormData
     {
         [Required(ErrorMessage = "License Plate is required.")]
+        [RegularExpression("^[a-zA-Z]{1,2}-[a-zA-Z0-9]{4,6}$", ErrorMessage = "Enter a valid License plate. (#[#]-####)")]
         public string LicensePlate { get; set; }
 
         [Required(ErrorMessage = "Fuel Type is required.")]
