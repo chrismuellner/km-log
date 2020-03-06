@@ -7,7 +7,7 @@
 
 <AddEntryComponent LicensePlate="@LicensePlate" />
 
-@if (PagingResult != null)
+@if (PagingResult != null && PagingResult.Count > 0)
 {
     <table class="table table-striped">
         <thead>
@@ -15,17 +15,17 @@
                 <th scope="col">Date</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Cost</th>
-                <th scope="col">Total Distance</th>
+                <th scope="col">Distance</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var refuelAction in PagingResult.Items)
+            @foreach (var refuelEntry in PagingResult.Items)
             {
                 <tr>
-                    <th scope="row">@refuelAction.Date.ToShortDateString()</th>
-                    <td>@refuelAction.Amount.ToString("N2") l</td>
-                    <td>@refuelAction.Cost.ToString("N2") €</td>
-                    <td>@refuelAction.TotalDistance.ToString("N0") km</td>
+                    <th scope="row">@refuelEntry.Date.ToShortDateString()</th>
+                    <td>@refuelEntry.Amount.ToString("N2") l</td>
+                    <td>@refuelEntry.Cost.ToString("N2") €</td>
+                    <td>@refuelEntry.Distance.ToString("N0") km</td>
                 </tr>
             }
         </tbody>
@@ -50,17 +50,17 @@
             <li class="page-item active">
                 <a class="page-link" tabindex="-1">@CurrentPage</a>
             </li>
-            @if (TotalPages > 1 && PagingParams.PageIndex < TotalPages - 1)
+            @if (TotalPages > 1 && PagingParams.PageIndex < TotalPages - 2)
             {
                 <li class="page-item disabled">
                     <a class="page-link" tabindex="-1">...</a>
                 </li>
             }
-            @if (PagingParams.PageIndex < TotalPages)
+            @if (PagingParams.PageIndex < TotalPages - 1)
             {
                 <li class="page-item">
-                    <a class="page-link" @onclick="() => PagingChanged(TotalPages)" href="javascript:void(0)">
-                        @TotalPagesPlus1
+                    <a class="page-link" @onclick="() => PagingChanged(TotalPages - 1)" href="javascript:void(0)">
+                        @TotalPages
                     </a>
                 </li>
                 <li class="page-item">
@@ -79,10 +79,13 @@
     public string LicensePlate { get; set; }
 
     PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
-    PagingResult<RefuelActionInfoDto> PagingResult { get; set; }
+    PagingResult<RefuelEntryInfoDto> PagingResult { get; set; }
 
-    int TotalPages => PagingResult != null ? PagingResult.Count / PagingParams.PageSize : 0;
-    int TotalPagesPlus1 => TotalPages + 1;
+    int TotalPages => PagingResult != null 
+        ? PagingResult.Count % PagingParams.PageSize > 0 
+            ? (PagingResult.Count / PagingParams.PageSize) + 1 
+            : PagingResult.Count / PagingParams.PageSize
+        : 0;
     int CurrentPage => PagingParams.PageIndex + 1;
 
     protected override async Task OnInitializedAsync()
@@ -96,13 +99,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelActionInfoDto>>($"api/refuelaction/{LicensePlate}");
+        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
     }
 
     async Task PagingChanged(int page)
     {
         PagingParams.PageIndex = page;
-        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelActionInfoDto>>(
-            $"api/refuelaction/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
+        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>(
+            $"api/refuelentry/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
     }
 }

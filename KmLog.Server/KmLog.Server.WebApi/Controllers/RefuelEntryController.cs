@@ -12,15 +12,15 @@ namespace KmLog.Server.WebApi.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class RefuelActionController : ControllerBase
+    public class RefuelEntryController : ControllerBase
     {
-        private readonly ILogger<RefuelActionController> _logger;
-        private readonly FuelActionLogic _fuelActionLogic;
+        private readonly ILogger<RefuelEntryController> _logger;
+        private readonly RefuelEntryLogic _refuelEntryLogic;
 
-        public RefuelActionController(ILogger<RefuelActionController> logger, FuelActionLogic fuelActionLogic)
+        public RefuelEntryController(ILogger<RefuelEntryController> logger, RefuelEntryLogic refuelEntryLogic)
         {
             _logger = logger;
-            _fuelActionLogic = fuelActionLogic;
+            _refuelEntryLogic = refuelEntryLogic;
         }
 
         [HttpGet("id/{carId}")]
@@ -31,26 +31,26 @@ namespace KmLog.Server.WebApi.Controllers
                 return BadRequest();
             }
 
-            var fuelActions = await _fuelActionLogic.LoadByCarId(carGuid);
+            var fuelActions = await _refuelEntryLogic.LoadByCarId(carGuid);
             return Ok(fuelActions);
         }
 
         [HttpGet("{licensePlate}")]
         public async Task<IActionResult> LoadPaged(string licensePlate, [FromQuery] PagingParameters pagingParameters)
         {
-            var result = await _fuelActionLogic.LoadPaged(pagingParameters, licensePlate);
+            var result = await _refuelEntryLogic.LoadPaged(pagingParameters, licensePlate);
             return Ok(result);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Add([FromBody] RefuelActionDto refuelAction)
+        public async Task<IActionResult> Add([FromBody] RefuelEntryDto refuelEntry)
         {
-            if (refuelAction.CarId == Guid.Empty)
+            if (refuelEntry.CarId == Guid.Empty)
             {
                 return BadRequest();
             }
 
-            var added = await _fuelActionLogic.Add(refuelAction);
+            var added = await _refuelEntryLogic.Add(refuelEntry);
             return Ok(added);
         }
     }

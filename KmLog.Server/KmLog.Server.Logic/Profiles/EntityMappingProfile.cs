@@ -8,8 +8,8 @@ namespace KmLog.Server.Logic.Profiles
     {
         public EntityMappingProfile()
         {
-            CreateMap<RefuelActionDto, RefuelAction>();
-            CreateMap<RefuelActionInfoDto, RefuelAction>();
+            CreateMap<RefuelEntryDto, RefuelEntry>();
+            CreateMap<RefuelEntryInfoDto, RefuelEntry>();
             CreateMap<CarDto, Car>();
             CreateMap<CarInfoDto, Car>();
             CreateMap<UserDto, User>();

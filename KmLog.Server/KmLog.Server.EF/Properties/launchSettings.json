@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "KmLog.Server.EF": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -9,6 +9,8 @@ namespace KmLog.Server.Dal
 {
     public interface ICarRepository : IBaseRepository<Car, CarDto>
     {
+        Task<CarDto> LoadByLicensePlate(string licensePlate);
+
         Task<IEnumerable<CarDto>> LoadByUser(Guid userId);
     }
 }

@@ -1,0 +1,14 @@
+﻿using System;
+using KmLog.Server.Dto.Base;
+
+namespace KmLog.Server.Dto
+{
+    public abstract class EntryDto : IdentifiableBaseDto
+    {
+        public DateTime Date { get; set; }
+
+        public double Cost { get; set; }
+
+        public string Notes { get; set; }
+    }
+}

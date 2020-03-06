@@ -5,11 +5,9 @@ namespace KmLog.Server.EF.DI
 {
     public static class EfServiceCollectionExtensions
     {
-        private const string CONNECTION_STRING = "KmLogContext";
-
         public static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped(_ => new KmLogContext(configuration.GetConnectionString(CONNECTION_STRING)));
+            services.AddScoped(_ => new KmLogContext(configuration.GetConnectionString(nameof(KmLogContext))));
 
             return services;
         }

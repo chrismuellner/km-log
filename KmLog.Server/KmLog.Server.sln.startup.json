@@ -6,6 +6,11 @@
             "Projects": {
                 "KmLog.Server.WebApi": {}
             }
+        },
+        "Entity Framework": {
+            "Projects": {
+                "KmLog.Server.EF": {}
+            }
         }
     }
 }

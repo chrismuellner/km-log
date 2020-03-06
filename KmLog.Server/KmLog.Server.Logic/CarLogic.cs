@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using Microsoft.Extensions.Logging;
 
@@ -14,15 +15,15 @@ namespace KmLog.Server.Logic
     {
         private readonly ILogger<CarLogic> _logger;
         private readonly ICarRepository _carRepository;
-        private readonly IRefuelActionRepository _refuelActionRepository;
+        private readonly IRefuelEntryRepository _refuelEntryRepository;
         private readonly IUserRepository _userRepository;
 
-        public CarLogic(ILogger<CarLogic> logger, ICarRepository carRepository, IRefuelActionRepository refuelActionRepository,
+        public CarLogic(ILogger<CarLogic> logger, ICarRepository carRepository, IRefuelEntryRepository refuelEntryRepository,
                         IUserRepository userRepository)
         {
             _logger = logger;
             _carRepository = carRepository;
-            _refuelActionRepository = refuelActionRepository;
+            _refuelEntryRepository = refuelEntryRepository;
             _userRepository = userRepository;
         }
 
@@ -68,7 +69,7 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<RefuelActionDto>> ImportCsv(string email, Stream fileStream, string fileName)
+        public async Task<IEnumerable<RefuelEntryDto>> ImportCsv(string email, Stream fileStream, string fileName)
         {
             try
             {
@@ -79,14 +80,18 @@ namespace KmLog.Server.Logic
                 }
 
                 var licensePlate = fileName.Split("_").First();
-                var car = new CarDto
+                var car = await _carRepository.LoadByLicensePlate(licensePlate);
+                if (car == null)
                 {
-                    UserId = user.Id,
-                    LicensePlate = licensePlate
-                };
-                await _carRepository.Add(car);
+                    car = new CarDto
+                    {
+                        UserId = user.Id,
+                        LicensePlate = licensePlate
+                    };
+                    await _carRepository.Add(car);
+                }
 
-                var refuelActions = new List<RefuelActionDto>();
+                var refuelEntries = new List<RefuelEntryDto>();
 
                 using var reader = new StreamReader(fileStream);
                 while (!reader.EndOfStream)
@@ -100,7 +105,7 @@ namespace KmLog.Server.Logic
                     var culture = CultureInfo.CreateSpecificCulture("de-AT");
                     if (!DateTime.TryParseExact(attr[0], "yyyy_MM_dd",
                             CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ||
-                        !double.TryParse(attr[2], NumberStyles.Any, culture, out var totalDistance) ||
+                        !long.TryParse(attr[2], NumberStyles.Any, culture, out var totalDistance) ||
                         !double.TryParse(attr[3], NumberStyles.Any, culture, out var totalCost) ||
                         !double.TryParse(attr[4], NumberStyles.Any, culture, out var amount) ||
                         !double.TryParse(attr[5], NumberStyles.Any, culture, out var pricePerLiter))
@@ -108,19 +113,42 @@ namespace KmLog.Server.Logic
                         continue;
                     }
 
-                    var refuelAction = new RefuelActionDto
+                    var refuelEntry = new RefuelEntryDto
                     {
                         Date = date,
-                        Amount = Math.Round(amount, 2),
-                        Cost = Math.Round(totalCost, 2),
-                        TotalDistance = Math.Round(totalDistance, 2),
+                        Amount = amount,
+                        Cost = totalCost,
+                        TotalDistance = totalDistance,
+                        PricePerLiter = pricePerLiter,
+                        TankStatus = attr[7] switch 
+                        { 
+                            "tank full" => TankStatus.Full,
+                            "tank partial" => TankStatus.Partial,
+                            _ => throw new InvalidOperationException("Invalid tank status!")
+                        },
                         CarId = car.Id
                     };
-                    refuelActions.Add(refuelAction);
+
+                    refuelEntries.Add(refuelEntry);
                 }
 
-                await _refuelActionRepository.Add(refuelActions);
-                return refuelActions;
+                long previousTotalDistance = 0;
+                for (int i = refuelEntries.Count - 1; i >= 0; i--)
+                {
+                    var refuelEntry = refuelEntries[i];
+
+                    long distance = 0;
+                    if (previousTotalDistance > 0)
+                    {
+                        distance = refuelEntry.TotalDistance - previousTotalDistance;
+                    }
+                    previousTotalDistance = refuelEntry.TotalDistance;
+
+                    refuelEntry.Distance = distance > 0 ? distance : 0; // todo: mark as invalid
+                }
+
+                await _refuelEntryRepository.Add(refuelEntries);
+                return refuelEntries;
             } catch (Exception ex)
             {
                 _logger.LogError(ex, "Error importing file");

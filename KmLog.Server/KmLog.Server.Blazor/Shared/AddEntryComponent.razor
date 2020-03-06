@@ -56,7 +56,7 @@
     [CascadingParameter]
     private IEnumerable<CarDto> Cars { get; set; }
 
-    RefuelActionFormData RefuelData { get; set; } = new RefuelActionFormData
+    RefuelEntryFormData RefuelData { get; set; } = new RefuelEntryFormData
     {
         Date = DateTime.Today
     };
@@ -74,7 +74,7 @@
 
     async Task FormSubmitted()
     {
-        var refuelAction = new RefuelActionInfoDto
+        var refuelEntry = new RefuelEntryDto
         {
             CarId = Guid.TryParse(RefuelData.CarId, out var carGuid) ? carGuid : Guid.Empty,
             Date = RefuelData.Date,
@@ -82,10 +82,10 @@
             Amount = RefuelData.Amount,
             Cost = RefuelData.Cost
         };
-        await HttpClient.PutJsonAsync("api/refuelaction", refuelAction);
+        await HttpClient.PutJsonAsync("api/refuelentry", refuelEntry);
     }
 
-    class RefuelActionFormData
+    class RefuelEntryFormData
     {
         private string _carId;
 
@@ -104,7 +104,7 @@
 
         [Required(ErrorMessage = "Total Distance is required.")]
         [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public double TotalDistance { get; set; }
+        public long TotalDistance { get; set; }
 
         [Required(ErrorMessage = "Amount is required.")]
         [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]

@@ -58,12 +58,12 @@ namespace KmLog.Server.WebApi.Controllers
 
                 var email = User.GetEmail();
 
-                var refuelActions = await _carLogic.ImportCsv(email, fileStream, fileName);
-                if (refuelActions == null)
+                var refuelEntries = await _carLogic.ImportCsv(email, fileStream, fileName);
+                if (refuelEntries == null)
                 {
                     return NotFound();
                 }
-                return Ok(refuelActions);
+                return Ok(refuelEntries);
             }
             return BadRequest();
         }

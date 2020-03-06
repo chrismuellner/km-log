@@ -16,6 +16,14 @@ namespace KmLog.Server.Dal
         public CarRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }
 
+        public async Task<CarDto> LoadByLicensePlate(string licensePlate)
+        {
+            var car = await Query()
+                .FirstOrDefaultAsync(c => c.LicensePlate == licensePlate);
+
+            return Mapper.Map<CarDto>(car);
+        }
+
         public async Task<IEnumerable<CarDto>> LoadByUser(Guid userId)
         {
             var cars = await Query()
@@ -28,7 +36,7 @@ namespace KmLog.Server.Dal
         protected override IQueryable<Car> Query()
         {
             return base.Query()
-                .Include(c => c.RefuelActions);
+                .Include(c => c.RefuelEntries);
         }
     }
 }
