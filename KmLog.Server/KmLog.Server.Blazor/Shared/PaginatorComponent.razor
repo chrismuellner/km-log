@@ -1,0 +1,65 @@
+﻿@typeparam T
+
+<nav>
+    <ul class="pagination justify-content-center">
+        @if (PagingParams.PageIndex > 0)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex - 1)" href="javascript:void(0)">Previous</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" @onclick="() => PagingChanged(0)" href="javascript:void(0)">1</a>
+            </li>
+        }
+        @if (PagingParams.PageIndex > 1)
+        {
+            <li class="page-item disabled">
+                <a class="page-link" tabindex="-1">...</a>
+            </li>
+        }
+        <li class="page-item active">
+            <a class="page-link" tabindex="-1">@CurrentPage</a>
+        </li>
+        @if (TotalPages > 1 && PagingParams.PageIndex < TotalPages - 2)
+        {
+            <li class="page-item disabled">
+                <a class="page-link" tabindex="-1">...</a>
+            </li>
+        }
+        @if (PagingParams.PageIndex < TotalPages - 1)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="() => PagingChanged(TotalPages - 1)" href="javascript:void(0)">
+                    @TotalPages
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex + 1)" href="javascript:void(0)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public PagingParameters PagingParams { get; set; }
+
+    [Parameter]
+    public PagingResult<T> PagingResult { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPagingChanged { get; set; }
+
+    int TotalPages => PagingResult != null
+        ? PagingResult.Count % PagingParams.PageSize > 0
+            ? (PagingResult.Count / PagingParams.PageSize) + 1
+            : PagingResult.Count / PagingParams.PageSize
+        : 0;
+    int CurrentPage => PagingParams.PageIndex + 1;
+
+
+    async Task PagingChanged(int page)
+    {
+        await OnPagingChanged.InvokeAsync(page);
+    }
+}

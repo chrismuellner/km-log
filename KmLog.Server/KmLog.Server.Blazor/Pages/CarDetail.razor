@@ -30,45 +30,7 @@
             }
         </tbody>
     </table>
-    <nav>
-        <ul class="pagination justify-content-center">
-            @if (PagingParams.PageIndex > 0)
-            {
-                <li class="page-item">
-                    <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex - 1)" href="javascript:void(0)">Previous</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" @onclick="() => PagingChanged(0)" href="javascript:void(0)">1</a>
-                </li>
-            }
-            @if (PagingParams.PageIndex > 1)
-            {
-                <li class="page-item disabled">
-                    <a class="page-link" tabindex="-1">...</a>
-                </li>
-            }
-            <li class="page-item active">
-                <a class="page-link" tabindex="-1">@CurrentPage</a>
-            </li>
-            @if (TotalPages > 1 && PagingParams.PageIndex < TotalPages - 2)
-            {
-                <li class="page-item disabled">
-                    <a class="page-link" tabindex="-1">...</a>
-                </li>
-            }
-            @if (PagingParams.PageIndex < TotalPages - 1)
-            {
-                <li class="page-item">
-                    <a class="page-link" @onclick="() => PagingChanged(TotalPages - 1)" href="javascript:void(0)">
-                        @TotalPages
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" @onclick="() => PagingChanged(PagingParams.PageIndex + 1)" href="javascript:void(0)">Next</a>
-                </li>
-            }
-        </ul>
-    </nav>
+    <PaginatorComponent PagingParams="@PagingParams" PagingResult="@PagingResult" OnPagingChanged="@PagingChanged" />
 }
 
 @code {
@@ -80,13 +42,6 @@
 
     PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
     PagingResult<RefuelEntryInfoDto> PagingResult { get; set; }
-
-    int TotalPages => PagingResult != null 
-        ? PagingResult.Count % PagingParams.PageSize > 0 
-            ? (PagingResult.Count / PagingParams.PageSize) + 1 
-            : PagingResult.Count / PagingParams.PageSize
-        : 0;
-    int CurrentPage => PagingParams.PageIndex + 1;
 
     protected override async Task OnInitializedAsync()
     {
