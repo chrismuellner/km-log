@@ -1,15 +1,43 @@
 ﻿@inherits LayoutComponentBase
+@inject HttpClient HttpClient
 
-<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4 auth">
-        <LoginDisplay />
+<CascadingValue Value="@Cars">
+    <div class="sidebar">
+        <NavMenu />
     </div>
 
-    <div class="content px-4">
-        @Body
+    <div class="main">
+        <div class="top-row px-4 auth">
+            <LoginDisplay />
+        </div>
+
+        <div class="content px-4">
+            @if (Cars != null)
+            {
+                @Body
+            } 
+            else
+            {
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" />
+                </div>
+            }
+        </div>
     </div>
-</div>
+</CascadingValue>
+
+@code {
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    IEnumerable<CarDto> Cars { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            Cars = await HttpClient.GetJsonAsync<IEnumerable<CarDto>>("api/car");
+        }
+    }
+}

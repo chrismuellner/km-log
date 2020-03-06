@@ -32,17 +32,8 @@
     private bool collapseNavMenu = true;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
-    IEnumerable<CarDto> Cars { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateTask;
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            Cars = await HttpClient.GetJsonAsync<IEnumerable<CarDto>>("api/car");
-        }
-    }
+    [CascadingParameter]
+    private IEnumerable<CarDto> Cars { get; set; }
 
     private void ToggleNavMenu()
     {
