@@ -3,35 +3,60 @@
 @inject HttpClient HttpClient
 @attribute [Authorize]
 
-<h2>@LicensePlate</h2>
-
-<AddEntryComponent LicensePlate="@LicensePlate" />
-
-@if (PagingResult != null && PagingResult.Count > 0)
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Cost</th>
-                <th scope="col">Distance</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var refuelEntry in PagingResult.Items)
+<div class="col">
+    <div class="card row">
+        <div class="card-body">
+            <h2 class="card-title">@LicensePlate</h2>
+            @if (CarStatistic != null)
             {
-                <tr>
-                    <th scope="row">@refuelEntry.Date.ToShortDateString()</th>
-                    <td>@refuelEntry.Amount.ToString("N2") l</td>
-                    <td>@refuelEntry.Cost.ToString("N2") €</td>
-                    <td>@refuelEntry.Distance.ToString("N0") km</td>
-                </tr>
+                <div class="row">
+                    <div class="col">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Avg. Distance: @CarStatistic.AvgDistance.ToString("N0") km</li>
+                            <li class="list-group-item">Total Distance: @CarStatistic.TotalDistance.ToString("N0") km</li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Avg. Cost: @CarStatistic.AvgCost.ToString("N2") €</li>
+                            <li class="list-group-item">Total Cost: @CarStatistic.TotalCost.ToString("N2") €</li>
+                        </ul>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-    <PaginatorComponent PagingParams="@PagingParams" PagingResult="@PagingResult" OnPagingChanged="@PagingChanged" />
-}
+        </div>
+    </div>
+
+    <AddEntryComponent LicensePlate="@LicensePlate" />
+
+    @if (PagingResult != null && PagingResult.Count > 0)
+    {
+        <div class="row">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Cost</th>
+                        <th scope="col">Distance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var refuelEntry in PagingResult.Items)
+                    {
+                        <tr>
+                            <th scope="row">@refuelEntry.Date.ToShortDateString()</th>
+                            <td>@refuelEntry.Amount.ToString("N2") l</td>
+                            <td>@refuelEntry.Cost.ToString("N2") €</td>
+                            <td>@refuelEntry.Distance.ToString("N0") km</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <PaginatorComponent PagingParams="@PagingParams" PagingResult="@PagingResult" OnPagingChanged="@PagingChanged" />
+        </div>
+    }
+</div>
 
 @code {
     [CascadingParameter]
@@ -39,6 +64,8 @@
 
     [Parameter]
     public string LicensePlate { get; set; }
+
+    CarStatisticDto CarStatistic { get; set; }
 
     PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
     PagingResult<RefuelEntryInfoDto> PagingResult { get; set; }
@@ -54,7 +81,24 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
+        try
+        {
+            CarStatistic = await HttpClient.GetJsonAsync<CarStatisticDto>($"api/car/{LicensePlate}");
+        }
+        catch (Exception)
+        {
+            CarStatistic = null;
+            Console.Error.WriteLine("Could not parse json for car statistic!");
+        }
+
+        try
+        {
+            PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
+        }
+        catch (Exception)
+        {
+            Console.Error.WriteLine("Could not parse json for refuel entries!");
+        }
     }
 
     async Task PagingChanged(int page)

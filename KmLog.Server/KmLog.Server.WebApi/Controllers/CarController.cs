@@ -47,6 +47,14 @@ namespace KmLog.Server.WebApi.Controllers
             return Ok(added);
         }
 
+        [HttpGet("{licensePlate}")]
+        public async Task<IActionResult> LoadStatistics(string licensePlate)
+        {
+            var statistics = await _carLogic.LoadStatistics(licensePlate);
+
+            return Ok(statistics);
+        }
+
         [HttpPost("csv")]
         public async Task<IActionResult> UploadCsv()
         {

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.Dal
 {
-    public class RefuelEntryRepository : BaseRepository<RefuelEntry, RefuelEntryDto>, IRefuelEntryRepository
+    public class RefuelEntryRepository : IdentifiableBaseRepository<RefuelEntry, RefuelEntryDto>, IRefuelEntryRepository
     {
         public RefuelEntryRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }

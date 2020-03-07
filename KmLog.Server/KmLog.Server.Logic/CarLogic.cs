@@ -69,6 +69,20 @@ namespace KmLog.Server.Logic
             }
         }
 
+        public async Task<CarStatisticDto> LoadStatistics(string licensePlate)
+        {
+            try
+            {
+                var statistic = await _carRepository.LoadStatisticByLicensePlate(licensePlate);
+                return statistic;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading car statistics");
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<RefuelEntryDto>> ImportCsv(string email, Stream fileStream, string fileName)
         {
             try
@@ -120,8 +134,8 @@ namespace KmLog.Server.Logic
                         Cost = totalCost,
                         TotalDistance = totalDistance,
                         PricePerLiter = pricePerLiter,
-                        TankStatus = attr[7] switch 
-                        { 
+                        TankStatus = attr[7] switch
+                        {
                             "tank full" => TankStatus.Full,
                             "tank partial" => TankStatus.Partial,
                             _ => throw new InvalidOperationException("Invalid tank status!")
@@ -149,7 +163,8 @@ namespace KmLog.Server.Logic
 
                 await _refuelEntryRepository.Add(refuelEntries);
                 return refuelEntries;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error importing file");
                 throw;

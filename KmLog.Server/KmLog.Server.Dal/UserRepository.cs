@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.Dal
 {
-    public class UserRepository : BaseRepository<User, UserDto>, IUserRepository
+    public class UserRepository : IdentifiableBaseRepository<User, UserDto>, IUserRepository
     {
         public UserRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }

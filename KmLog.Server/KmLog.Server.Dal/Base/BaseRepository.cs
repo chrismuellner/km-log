@@ -5,16 +5,14 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using KmLog.Server.Domain;
-using KmLog.Server.Dto.Base;
 using KmLog.Server.EF;
-using KmLog.Server.Model.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.Dal.Base
 {
     public class BaseRepository<TEntity, TDto> : IBaseRepository<TEntity, TDto>
-        where TEntity : IdentifiableBase
-        where TDto : IdentifiableBaseDto
+        where TEntity : class
+        where TDto : class
     {
         protected KmLogContext Context { get; }
         protected IMapper Mapper { get; }
@@ -38,15 +36,7 @@ namespace KmLog.Server.Dal.Base
             return Mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public async Task<TDto> LoadById(Guid id)
-        {
-            var entity = await Query()
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            return Mapper.Map<TDto>(entity);
-        }
-
-        public async Task<PagingResult<TDto>> LoadPaged<TKey>(PagingParameters pagingParameters, 
+        public async Task<PagingResult<TDto>> LoadPaged<TKey>(PagingParameters pagingParameters,
                                                               Expression<Func<TEntity, TKey>> order,
                                                               Expression<Func<TEntity, bool>> predicate = null)
         {
@@ -68,45 +58,6 @@ namespace KmLog.Server.Dal.Base
                 Count = await query.CountAsync(),
                 Items = Mapper.Map<IEnumerable<TDto>>(entities)
             };
-        }
-
-        public async Task Add(TDto dto)
-        {
-            var entity = Mapper.Map<TEntity>(dto);
-
-            await Context.Set<TEntity>().AddAsync(entity);
-            await Context.SaveChangesAsync();
-
-            Mapper.Map(entity, dto);
-        }
-
-        public async Task Add(IEnumerable<TDto> dtos)
-        {
-            var entities = Mapper.Map<IEnumerable<TEntity>>(dtos);
-
-            await Context.Set<TEntity>().AddRangeAsync(entities);
-            await Context.SaveChangesAsync();
-
-            Mapper.Map(entities, dtos);
-        }
-
-        public async Task Update(TDto dto)
-        {
-            var entity = Mapper.Map<TEntity>(dto);
-
-            Context.Set<TEntity>().Update(entity);
-            await Context.SaveChangesAsync();
-
-            Mapper.Map(entity, dto);
-        }
-
-        public async Task Delete(Guid id)
-        {
-            var dto = await LoadById(id);
-            var entity = Mapper.Map<TEntity>(dto);
-
-            Context.Set<TEntity>().Remove(entity);
-            await Context.SaveChangesAsync();
         }
     }
 }

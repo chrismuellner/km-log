@@ -7,10 +7,12 @@ using KmLog.Server.Model;
 
 namespace KmLog.Server.Dal
 {
-    public interface ICarRepository : IBaseRepository<Car, CarDto>
+    public interface ICarRepository : IIdentifiableBaseRepository<Car, CarDto>
     {
         Task<CarDto> LoadByLicensePlate(string licensePlate);
 
         Task<IEnumerable<CarDto>> LoadByUser(Guid userId);
+
+        Task<CarStatisticDto> LoadStatisticByLicensePlate(string licensePlate);
     }
 }

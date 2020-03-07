@@ -5,7 +5,7 @@ using KmLog.Server.Model;
 
 namespace KmLog.Server.Dal
 {
-    public interface IUserRepository : IBaseRepository<User, UserDto>
+    public interface IUserRepository : IIdentifiableBaseRepository<User, UserDto>
     {
         Task<bool> CheckByEmail(string email);
 

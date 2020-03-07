@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KmLog.Server.Dal
 {
-    public class CarRepository : BaseRepository<Car, CarDto>, ICarRepository
+    public class CarRepository : IdentifiableBaseRepository<Car, CarDto>, ICarRepository
     {
         public CarRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }
@@ -31,6 +31,22 @@ namespace KmLog.Server.Dal
                 .ToListAsync();
 
             return Mapper.Map<IEnumerable<CarDto>>(cars);
+        }
+
+        public async Task<CarStatisticDto> LoadStatisticByLicensePlate(string licensePlate)
+        {
+            var statistic = await Context.RefuelEntries
+                .Where(r => r.Car.LicensePlate == licensePlate)
+                .GroupBy(r => r.Car.LicensePlate, (k, g) => new CarStatisticDto
+                {
+                    AvgCost = g.Average(r => r.Cost),
+                    AvgDistance = g.Average(r => r.Distance),
+                    TotalCost = g.Sum(r => r.Cost),
+                    TotalDistance = g.Max(r => r.TotalDistance)
+                })
+                .FirstOrDefaultAsync();
+
+            return statistic;
         }
 
         protected override IQueryable<Car> Query()
