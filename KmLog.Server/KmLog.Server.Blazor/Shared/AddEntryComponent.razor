@@ -24,13 +24,19 @@
             <div class="form-group">
                 <label for="formGroupDate">Date</label>
                 <InputDate @bind-Value=RefuelData.Date ParsingErrorMessage="Must be a date"
-                           class="form-control" id="formGroupDate" placeholder="Date" />
+                            class="form-control" id="formGroupDate" placeholder="Date" />
             </div>
             <div class="form-group">
-                <label for="formGroupDistance">Total Distance (km)</label>
+                <label for="formGroupTotalDistance">Total Distance (km)</label>
                 <InputNumber @bind-Value=RefuelData.TotalDistance ParsingErrorMessage="Must be a decimal value"
-                             class="form-control" id="formGroupDistance" placeholder="Total Distance" min="0" />
+                             class="form-control" id="formGroupTotalDistance" placeholder="Total Distance" min="0" />
                 <ValidationMessage For="() => RefuelData.TotalDistance" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupDistance">Distance (km)</label>
+                <InputNumber @bind-Value=RefuelData.Distance ParsingErrorMessage="Must be a decimal value"
+                             class="form-control" id="formGroupDistance" placeholder="Distance" min="0" />
+                <ValidationMessage For="() => RefuelData.Distance" />
             </div>
             <div class="form-group">
                 <label for="formGroupAmount">Amount (l)</label>
@@ -41,8 +47,28 @@
             <div class="form-group">
                 <label for="formGroupCost">Cost (€)</label>
                 <InputNumber @bind-Value=RefuelData.Cost ParsingErrorMessage="Must be a decimal value"
-                             class="form-control" id="formGroupCost" placeholder="Cost" min="0" />
+                              class="form-control" id="formGroupCost" placeholder="Cost" min="0" />
                 <ValidationMessage For="() => RefuelData.Cost" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupPricePerLiter">Price per Liter (€)</label>
+                <InputNumber @bind-Value=RefuelData.PricePerLiter ParsingErrorMessage="Must be a decimal value"
+                              class="form-control" id="formGroupPricePerLiter" placeholder="Price per Liter" min="0.001" />
+                <ValidationMessage For="() => RefuelData.PricePerLiter" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupStatus">Tank Status</label>
+                <InputSelect @bind-Value=RefuelData.TankStatus class="form-control" id="formGroupStatus">
+                    @foreach (var tankStatus in Enum.GetValues(typeof(TankStatus)))
+                    {
+                        <option value="@tankStatus">@tankStatus.ToString()</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="form-group">
+                <label for="formGroupNotes">Notes</label>
+                <InputTextArea @bind-Value=RefuelData.Notes
+                              class="form-control" id="formGroupNotes" placeholder="Notes" />
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
         </EditForm>
@@ -63,13 +89,9 @@
 
     protected override void OnParametersSet()
     {
-        if (LicensePlate == null) {
-            RefuelData.CarId = Cars.FirstOrDefault().Id.ToString();
-        }
-        else
-        {
-            RefuelData.CarId = Cars.FirstOrDefault(c => c.LicensePlate == LicensePlate).Id.ToString();
-        }
+        RefuelData.CarId = LicensePlate == null
+            ? Cars.FirstOrDefault()?.Id.ToString() 
+            : Cars.FirstOrDefault(c => c.LicensePlate == LicensePlate)?.Id.ToString();
     }
 
     async Task FormSubmitted()
@@ -78,30 +100,31 @@
         {
             CarId = Guid.TryParse(RefuelData.CarId, out var carGuid) ? carGuid : Guid.Empty,
             Date = RefuelData.Date,
+            Notes =  RefuelData.Notes,
+            Distance = RefuelData.Distance,
             TotalDistance = RefuelData.TotalDistance,
             Amount = RefuelData.Amount,
-            Cost = RefuelData.Cost
+            Cost = RefuelData.Cost,
+            PricePerLiter = RefuelData.PricePerLiter,
+            TankStatus = RefuelData.TankStatus
         };
         await HttpClient.PutJsonAsync("api/refuelentry", refuelEntry);
     }
 
     class RefuelEntryFormData
     {
-        private string _carId;
-
         [Required]
-        public string CarId
-        {
-            get => _carId;
-            set
-            {
-                _carId = value;
-            }
-        }
+        public string CarId { get; set; }
 
         [Required]
         public DateTime Date { get; set; }
 
+        public string Notes { get; set; }
+
+        [Required(ErrorMessage = "Distance is required.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public long Distance { get; set; }
+        
         [Required(ErrorMessage = "Total Distance is required.")]
         [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
         public long TotalDistance { get; set; }
@@ -113,5 +136,12 @@
         [Required(ErrorMessage = "Cost is required.")]
         [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
         public double Cost { get; set; }
+        
+        [Required(ErrorMessage = "Price per Liter is required.")]
+        [Range(0.001, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public double PricePerLiter { get; set; }
+
+        [Required(ErrorMessage = "Tank Status is required.")]
+        public TankStatus TankStatus { get; set; }
     }
 }

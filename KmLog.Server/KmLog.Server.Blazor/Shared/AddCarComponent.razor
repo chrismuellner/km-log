@@ -21,6 +21,16 @@
                 </InputSelect>
                 <ValidationMessage For="() => CarData.Fuel" />
             </div>
+            <div class="form-group">
+                <label for="formGroupDescription">Description</label>
+                <InputText @bind-Value=CarData.Description class="form-control" id="formGroupDescription" placeholder="Description" />
+                <ValidationMessage For="() => CarData.Description" />
+            </div>
+            <div class="form-group">
+                <label for="formGroupInitialDistance">Initial Distance</label>
+                <InputNumber @bind-Value=CarData.InitialDistance class="form-control" id="formGroupInitialDistance" placeholder="Initial Distance" min="0" />
+                <ValidationMessage For="() => CarData.InitialDistance" />
+            </div>
             <button type="submit" class="btn btn-primary">Save</button>
         </EditForm>
     </div>
@@ -35,7 +45,9 @@
         var car = new CarInfoDto
         {
             LicensePlate = CarData.LicensePlate,
-            FuelType = CarData.Fuel
+            FuelType = CarData.Fuel,
+            Description = CarData.Description,
+            InitialDistance = CarData.InitialDistance
         };
 
         try
@@ -57,5 +69,11 @@
 
         [Required(ErrorMessage = "Fuel Type is required.")]
         public FuelType Fuel { get; set; }
+        
+        public string Description { get; set; }
+
+        [Required(ErrorMessage = "Initial Distance is required.")]
+        [Range(1, long.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
+        public long InitialDistance { get; set; }
     }
 }
