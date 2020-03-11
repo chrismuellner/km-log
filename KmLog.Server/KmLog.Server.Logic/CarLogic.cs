@@ -49,7 +49,7 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<CarDto>> LoadByUser(string email)
+        public async Task<IEnumerable<CarInfoDto>> LoadByUser(string email)
         {
             try
             {

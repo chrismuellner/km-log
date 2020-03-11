@@ -30,14 +30,21 @@
     [CascadingParameter]
     Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    IEnumerable<CarDto> Cars { get; set; }
+    IEnumerable<CarInfoDto> Cars { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
         if (authState.User.Identity.IsAuthenticated)
         {
-            Cars = await HttpClient.GetJsonAsync<IEnumerable<CarDto>>("api/car");
+            try
+            {
+                Cars = await HttpClient.GetJsonAsync<IEnumerable<CarInfoDto>>("api/car");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.StackTrace);
+            }
         }
     }
 }

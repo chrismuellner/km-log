@@ -33,16 +33,16 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<RefuelEntryInfoDto>> LoadByCarId(Guid carId)
+        public async Task<RefuelEntryInfoDto> LoadLatest(string licensePlate)
         {
             try
             {
-                var refuelEntries = await _refuelEntryRepository.LoadByCarId(carId);
-                return refuelEntries;
+                var result = await _refuelEntryRepository.LoadLatest(licensePlate);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading all actions by car id");
+                _logger.LogError(ex, "Error loading latest entry");
                 throw;
             }
         }

@@ -23,22 +23,17 @@ namespace KmLog.Server.WebApi.Controllers
             _refuelEntryLogic = refuelEntryLogic;
         }
 
-        [HttpGet("id/{carId}")]
-        public async Task<IActionResult> LoadByCarId(string carId)
-        {
-            if (!Guid.TryParse(carId, out var carGuid))
-            {
-                return BadRequest();
-            }
-
-            var fuelActions = await _refuelEntryLogic.LoadByCarId(carGuid);
-            return Ok(fuelActions);
-        }
-
         [HttpGet("{licensePlate}")]
         public async Task<IActionResult> LoadPaged(string licensePlate, [FromQuery] PagingParameters pagingParameters)
         {
             var result = await _refuelEntryLogic.LoadPaged(pagingParameters, licensePlate);
+            return Ok(result);
+        }
+
+        [HttpGet("{licensePlate}/latest")]
+        public async Task<IActionResult> LoadLatest(string licensePlate)
+        {
+            var result = await _refuelEntryLogic.LoadLatest(licensePlate);
             return Ok(result);
         }
 

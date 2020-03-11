@@ -24,13 +24,13 @@ namespace KmLog.Server.Dal
             return Mapper.Map<CarDto>(car);
         }
 
-        public async Task<IEnumerable<CarDto>> LoadByUser(Guid userId)
+        public async Task<IEnumerable<CarInfoDto>> LoadByUser(Guid userId)
         {
             var cars = await Query()
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
 
-            return Mapper.Map<IEnumerable<CarDto>>(cars);
+            return Mapper.Map<IEnumerable<CarInfoDto>>(cars);
         }
 
         public async Task<CarStatisticDto> LoadStatisticByLicensePlate(string licensePlate)

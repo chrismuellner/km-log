@@ -33,7 +33,7 @@
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     [CascadingParameter]
-    private IEnumerable<CarDto> Cars { get; set; }
+    private IEnumerable<CarInfoDto> Cars { get; set; }
 
     private void ToggleNavMenu()
     {

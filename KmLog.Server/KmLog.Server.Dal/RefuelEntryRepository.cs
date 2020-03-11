@@ -16,15 +16,6 @@ namespace KmLog.Server.Dal
         public RefuelEntryRepository(KmLogContext context, IMapper mapper) : base(context, mapper)
         { }
 
-        public async Task<IEnumerable<RefuelEntryInfoDto>> LoadByCarId(Guid carId)
-        {
-            var refuelEntries = await Query()
-                .Where(ra => ra.CarId == carId)
-                .ToListAsync();
-
-            return Mapper.Map<IEnumerable<RefuelEntryInfoDto>>(refuelEntries);
-        }
-
         public async Task<IEnumerable<RefuelEntryInfoDto>> LoadByCarLicensePlate(string licensePlate)
         {
             var refuelEntries = await Query()
@@ -32,6 +23,15 @@ namespace KmLog.Server.Dal
                 .ToListAsync();
 
             return Mapper.Map<IEnumerable<RefuelEntryInfoDto>>(refuelEntries);
+        }
+
+        public async Task<RefuelEntryInfoDto> LoadLatest(string licensePlate)
+        {
+            var refuelEntry = await Query()
+                .OrderByDescending(re => re.Date)
+                .FirstOrDefaultAsync(re => re.Car.LicensePlate == licensePlate);
+
+            return Mapper.Map<RefuelEntryInfoDto>(refuelEntry);
         }
 
         protected override IQueryable<RefuelEntry> Query()
