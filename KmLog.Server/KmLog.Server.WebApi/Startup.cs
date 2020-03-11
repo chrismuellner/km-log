@@ -1,11 +1,9 @@
 ﻿using System.Linq;
 using System.Net.Mime;
-using System.Text.Json.Serialization;
 using KmLog.Server.Dal.DI;
 using KmLog.Server.EF.DI;
 using KmLog.Server.Logic.DI;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -73,21 +71,21 @@ namespace KmLog.Server.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBlazorDebugging();
+                app.UseWebAssemblyDebugging();
             }
 
+            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseClientSideBlazorFiles<Blazor.Startup>();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToClientSideBlazor<Blazor.Startup>("index.html");
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
