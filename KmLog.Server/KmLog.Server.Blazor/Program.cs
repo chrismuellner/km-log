@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using KmLog.Server.Blazor.Validation.Validators;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KmLog.Server.Blazor
@@ -16,6 +17,10 @@ namespace KmLog.Server.Blazor
 
             builder.Services.AddApiAuthorization();
             builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+
+            // custom validators
+            builder.Services.AddScoped<RefuelEntryValidator>();
+            builder.Services.AddScoped<CarValidator>();
 
             await builder.Build().RunAsync();
         }

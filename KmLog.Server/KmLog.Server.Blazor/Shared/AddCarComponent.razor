@@ -3,33 +3,33 @@
 <div class="card row">
     <div class="card-body">
         <div class="card-title">Add new Car</div>
-        <EditForm Model=@CarData OnValidSubmit=@FormSubmitted>
-            <DataAnnotationsValidator />
+        <EditForm Model=@Car OnValidSubmit=@FormSubmitted>
+            <FluentValidationValidator ValidatorType=typeof(CarValidator) />
 
             <div class="form-group">
                 <label for="formGroupLicense">License Plate</label>
-                <InputText @bind-Value=CarData.LicensePlate class="form-control" id="formGroupLicense" placeholder="License Plate" />
-                <ValidationMessage For="() => CarData.LicensePlate" />
+                <InputText @bind-Value=Car.LicensePlate class="form-control" id="formGroupLicense" placeholder="License Plate" />
+                <ValidationMessage For="() => Car.LicensePlate" />
             </div>
             <div class="form-group">
                 <label for="formGroupFuel">Fuel Type</label>
-                <InputSelect @bind-Value=CarData.Fuel class="form-control" id="formGroupFuel">
+                <InputSelect @bind-Value=Car.FuelType class="form-control" id="formGroupFuel">
                     @foreach (FuelType fuelType in Enum.GetValues(typeof(FuelType)))
                     {
                         <option value="@fuelType">@fuelType.ToString()</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="() => CarData.Fuel" />
+                <ValidationMessage For="() => Car.FuelType" />
             </div>
             <div class="form-group">
                 <label for="formGroupDescription">Description</label>
-                <InputText @bind-Value=CarData.Description class="form-control" id="formGroupDescription" placeholder="Description" />
-                <ValidationMessage For="() => CarData.Description" />
+                <InputText @bind-Value=Car.Description class="form-control" id="formGroupDescription" placeholder="Description" />
+                <ValidationMessage For="() => Car.Description" />
             </div>
             <div class="form-group">
                 <label for="formGroupInitialDistance">Initial Distance</label>
-                <InputNumber @bind-Value=CarData.InitialDistance class="form-control" id="formGroupInitialDistance" placeholder="Initial Distance" min="0" />
-                <ValidationMessage For="() => CarData.InitialDistance" />
+                <InputNumber @bind-Value=Car.InitialDistance class="form-control" id="formGroupInitialDistance" placeholder="Initial Distance" min="0" />
+                <ValidationMessage For="() => Car.InitialDistance" />
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
         </EditForm>
@@ -38,42 +38,18 @@
 
 
 @code {
-    CarFormData CarData { get; set; } = new CarFormData();
+    CarModel Car { get; set; } = new CarModel();
 
     async Task FormSubmitted()
     {
-        var car = new CarInfoDto
-        {
-            LicensePlate = CarData.LicensePlate,
-            FuelType = CarData.Fuel,
-            Description = CarData.Description,
-            InitialDistance = CarData.InitialDistance
-        };
-
         try
         {
-            await HttpClient.PutJsonAsync("api/car", car);
-        } 
+            await HttpClient.PutJsonAsync("api/car", Car);
+        }
         catch (Exception ex)
         {
-            // todo: error handling
+            Console.Error.WriteLine(ex.StackTrace);
         }
-        CarData = new CarFormData();
-    }
-
-    class CarFormData
-    {
-        [Required(ErrorMessage = "License Plate is required.")]
-        [RegularExpression("^[a-zA-Z]{1,2}-[a-zA-Z0-9]{4,6}$", ErrorMessage = "Enter a valid License plate. (#[#]-####)")]
-        public string LicensePlate { get; set; }
-
-        [Required(ErrorMessage = "Fuel Type is required.")]
-        public FuelType Fuel { get; set; }
-        
-        public string Description { get; set; }
-
-        [Required(ErrorMessage = "Initial Distance is required.")]
-        [Range(1, long.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public long InitialDistance { get; set; }
+        Car = new CarModel();
     }
 }

@@ -3,14 +3,14 @@
 <div class="card row">
     <div class="card-body">
         <div class="card-title">Add new Entry</div>
-        <EditForm Model=@RefuelData OnValidSubmit=@FormSubmitted>
-            <DataAnnotationsValidator />
+        <EditForm Model=@RefuelEntry OnValidSubmit=@FormSubmitted>
+            <FluentValidationValidator ValidatorType=typeof(RefuelEntryValidator) />
 
             @if (LicensePlate == null)
             {
                 <div class="form-group">
                     <label for="formGroupCar">Car</label>
-                    <InputSelect @bind-Value=RefuelData.CarId class="form-control" id="formGroupCar">
+                    <InputSelect @bind-Value=RefuelEntry.CarIdAsString class="form-control" id="formGroupCar">
                         @if (Cars != null)
                         {
                             @foreach (var car in Cars)
@@ -23,42 +23,42 @@
             }
             <div class="form-group">
                 <label for="formGroupDate">Date</label>
-                <InputDate @bind-Value=RefuelData.Date ParsingErrorMessage="Must be a date"
+                <InputDate @bind-Value=RefuelEntry.Date ParsingErrorMessage="Must be a date"
                            class="form-control" id="formGroupDate" placeholder="Date" />
             </div>
             <div class="form-group">
                 <label for="formGroupTotalDistance">Total Distance (km)</label>
-                <InputNumber @bind-Value=RefuelData.TotalDistance ParsingErrorMessage="Must be a decimal value"
+                <InputNumber @bind-Value=RefuelEntry.TotalDistance ParsingErrorMessage="Must be a decimal value"
                              class="form-control" id="formGroupTotalDistance" placeholder="Total Distance" min="0" />
-                <ValidationMessage For="() => RefuelData.TotalDistance" />
+                <ValidationMessage For="() => RefuelEntry.TotalDistance" />
             </div>
             <div class="form-group">
                 <label for="formGroupDistance">Distance (km)</label>
-                <InputNumber @bind-Value=RefuelData.Distance ParsingErrorMessage="Must be a decimal value"
+                <InputNumber @bind-Value=RefuelEntry.Distance ParsingErrorMessage="Must be a decimal value"
                              class="form-control" id="formGroupDistance" placeholder="Distance" min="0" />
-                <ValidationMessage For="() => RefuelData.Distance" />
+                <ValidationMessage For="() => RefuelEntry.Distance" />
             </div>
             <div class="form-group">
                 <label for="formGroupAmount">Amount (l)</label>
-                <InputNumber @bind-Value=RefuelData.Amount ParsingErrorMessage="Must be a decimal value"
+                <InputNumber @bind-Value=RefuelEntry.Amount ParsingErrorMessage="Must be a decimal value"
                              class="form-control" id="formGroupAmount" placeholder="Amount" min="0" />
-                <ValidationMessage For="() => RefuelData.Amount" />
+                <ValidationMessage For="() => RefuelEntry.Amount" />
             </div>
             <div class="form-group">
                 <label for="formGroupCost">Cost (€)</label>
-                <InputNumber @bind-Value=RefuelData.Cost ParsingErrorMessage="Must be a decimal value"
+                <InputNumber @bind-Value=RefuelEntry.Cost ParsingErrorMessage="Must be a decimal value"
                              class="form-control" id="formGroupCost" placeholder="Cost" min="0" />
-                <ValidationMessage For="() => RefuelData.Cost" />
+                <ValidationMessage For="() => RefuelEntry.Cost" />
             </div>
             <div class="form-group">
                 <label for="formGroupPricePerLiter">Price per Liter (€)</label>
-                <InputNumber @bind-Value=RefuelData.PricePerLiter ParsingErrorMessage="Must be a decimal value"
+                <InputNumber @bind-Value=RefuelEntry.PricePerLiter ParsingErrorMessage="Must be a decimal value"
                              class="form-control" id="formGroupPricePerLiter" placeholder="Price per Liter" min="0.001" step="0.001" />
-                <ValidationMessage For="() => RefuelData.PricePerLiter" />
+                <ValidationMessage For="() => RefuelEntry.PricePerLiter" />
             </div>
             <div class="form-group">
                 <label for="formGroupStatus">Tank Status</label>
-                <InputSelect @bind-Value=RefuelData.TankStatus class="form-control" id="formGroupStatus">
+                <InputSelect @bind-Value=RefuelEntry.TankStatus class="form-control" id="formGroupStatus">
                     @foreach (var tankStatus in Enum.GetValues(typeof(TankStatus)))
                     {
                         <option value="@tankStatus">@tankStatus.ToString()</option>
@@ -67,7 +67,7 @@
             </div>
             <div class="form-group">
                 <label for="formGroupNotes">Notes</label>
-                <InputTextArea @bind-Value=RefuelData.Notes
+                <InputTextArea @bind-Value=RefuelEntry.Notes
                                class="form-control" id="formGroupNotes" placeholder="Notes" />
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
@@ -84,23 +84,24 @@
 
     RefuelEntryInfoDto LatestRefuelEntry { get; set; }
 
-    RefuelEntryFormData RefuelData { get; set; } = new RefuelEntryFormData
+    RefuelEntryModel RefuelEntry { get; set; } = new RefuelEntryModel
     {
         Date = DateTime.Today
     };
 
     protected override async Task OnParametersSetAsync()
     {
-        RefuelData.CarId = LicensePlate == null
-            ? Cars.FirstOrDefault()?.Id.ToString()
-            : Cars.FirstOrDefault(c => c.LicensePlate == LicensePlate)?.Id.ToString();
+        RefuelEntry.CarId = LicensePlate == null
+            ? Cars.First().Id
+            : Cars.First(c => c.LicensePlate == LicensePlate).Id;
 
         try
         {
             if (LicensePlate != null)
             {
                 LatestRefuelEntry = await HttpClient.GetJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{LicensePlate}/latest");
-                RefuelData.TotalDistance = LatestRefuelEntry.TotalDistance;
+                RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
+                RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
             }
         }
         catch (Exception ex)
@@ -111,52 +112,6 @@
 
     async Task FormSubmitted()
     {
-        var refuelEntry = new RefuelEntryDto
-        {
-            CarId = Guid.TryParse(RefuelData.CarId, out var carGuid) ? carGuid : Guid.Empty,
-            Date = RefuelData.Date,
-            Notes = RefuelData.Notes,
-            Distance = RefuelData.Distance,
-            TotalDistance = RefuelData.TotalDistance,
-            Amount = RefuelData.Amount,
-            Cost = RefuelData.Cost,
-            PricePerLiter = RefuelData.PricePerLiter,
-            TankStatus = RefuelData.TankStatus
-        };
-        await HttpClient.PutJsonAsync("api/refuelentry", refuelEntry);
-    }
-
-    class RefuelEntryFormData
-    {
-        [Required]
-        public string CarId { get; set; }
-
-        [Required]
-        public DateTime Date { get; set; }
-
-        public string Notes { get; set; }
-
-        [Required(ErrorMessage = "Distance is required.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public long Distance { get; set; }
-
-        [Required(ErrorMessage = "Total Distance is required.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public long TotalDistance { get; set; }
-
-        [Required(ErrorMessage = "Amount is required.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public double Amount { get; set; }
-
-        [Required(ErrorMessage = "Cost is required.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public double Cost { get; set; }
-
-        [Required(ErrorMessage = "Price per Liter is required.")]
-        [Range(0.001, double.MaxValue, ErrorMessage = "Value hast to be greater than 0.")]
-        public double PricePerLiter { get; set; }
-
-        [Required(ErrorMessage = "Tank Status is required.")]
-        public TankStatus TankStatus { get; set; }
+        await HttpClient.PutJsonAsync("api/refuelentry", RefuelEntry);
     }
 }
