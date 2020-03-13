@@ -40,7 +40,9 @@ namespace KmLog.Server.WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> Add([FromBody] RefuelEntryDto refuelEntry)
         {
-            if (refuelEntry.CarId == Guid.Empty)
+            if (refuelEntry.CarId == Guid.Empty 
+             || refuelEntry.Distance == 0 
+             || refuelEntry.TotalDistance == 0)
             {
                 return BadRequest();
             }

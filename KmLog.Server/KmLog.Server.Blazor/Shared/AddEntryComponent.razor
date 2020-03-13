@@ -104,6 +104,15 @@
 
     async Task FormSubmitted()
     {
+        if (RefuelEntry.Distance == 0)
+        {
+            RefuelEntry.Distance = RefuelEntry.TotalDistance - RefuelEntry.LatestTotalDistance.Value;
+        }
+        if (RefuelEntry.TotalDistance == 0)
+        {
+            RefuelEntry.TotalDistance = RefuelEntry.LatestTotalDistance.Value + RefuelEntry.Distance;
+        }
+
         await HttpClient.PutJsonAsync("api/refuelentry", RefuelEntry);
     }
 
