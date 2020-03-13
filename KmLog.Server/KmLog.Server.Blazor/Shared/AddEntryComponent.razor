@@ -10,7 +10,8 @@
             {
                 <div class="form-group">
                     <label for="formGroupCar">Car</label>
-                    <InputSelect @bind-Value=RefuelEntry.CarIdAsString class="form-control" id="formGroupCar">
+                    <InputSelect ValueChanged="(string carId) => UpdateCarId(carId)" ValueExpression="() => RefuelEntry.CarIdAsString" 
+                                 Value="RefuelEntry.CarIdAsString" class="form-control" id="formGroupCar">
                         @if (Cars != null)
                         {
                             @foreach (var car in Cars)
@@ -82,6 +83,8 @@
     [CascadingParameter]
     private IEnumerable<CarInfoDto> Cars { get; set; }
 
+    private CarInfoDto ActiveCar { get; set; }
+
     RefuelEntryInfoDto LatestRefuelEntry { get; set; }
 
     RefuelEntryModel RefuelEntry { get; set; } = new RefuelEntryModel
@@ -91,27 +94,39 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        RefuelEntry.CarId = LicensePlate == null
-            ? Cars.First().Id
-            : Cars.First(c => c.LicensePlate == LicensePlate).Id;
+        ActiveCar = LicensePlate == null
+            ? Cars.First()
+            : Cars.First(c => c.LicensePlate == LicensePlate);
+        RefuelEntry.CarId = ActiveCar.Id;
 
-        try
-        {
-            if (LicensePlate != null)
-            {
-                LatestRefuelEntry = await HttpClient.GetJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{LicensePlate}/latest");
-                RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
-                RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine(ex.StackTrace);
-        }
+        await LoadLatestRefuelEntry();
     }
 
     async Task FormSubmitted()
     {
         await HttpClient.PutJsonAsync("api/refuelentry", RefuelEntry);
+    }
+
+    private async Task UpdateCarId(string carId)
+    {
+        RefuelEntry.CarIdAsString = carId;
+        ActiveCar = Cars.First(c => c.Id == RefuelEntry.CarId);
+
+        await LoadLatestRefuelEntry();
+    }
+
+    private async Task LoadLatestRefuelEntry()
+    {
+        try
+        {
+            LatestRefuelEntry = await HttpClient.GetJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{ActiveCar.LicensePlate}/latest");
+            RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
+            RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("No latest refuelentry exists for current car");
+            RefuelEntry.LatestTotalDistance = default;
+        }
     }
 }
