@@ -83,7 +83,7 @@
     {
         try
         {
-            CarStatistic = await HttpClient.GetJsonAsync<CarStatisticDto>($"api/car/{LicensePlate}");
+            CarStatistic = await HttpClient.GetFromJsonAsync<CarStatisticDto>($"api/car/{LicensePlate}");
         }
         catch (Exception)
         {
@@ -93,7 +93,7 @@
 
         try
         {
-            PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
+            PagingResult = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
         }
         catch (Exception)
         {
@@ -104,7 +104,7 @@
     async Task PagingChanged(int page)
     {
         PagingParams.PageIndex = page;
-        PagingResult = await HttpClient.GetJsonAsync<PagingResult<RefuelEntryInfoDto>>(
+        PagingResult = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>(
             $"api/refuelentry/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
     }
 }

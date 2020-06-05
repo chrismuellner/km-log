@@ -44,7 +44,7 @@
     {
         try
         {
-            await HttpClient.PutJsonAsync("api/car", Car);
+            await HttpClient.PutAsJsonAsync("api/car", Car);
         }
         catch (Exception ex)
         {

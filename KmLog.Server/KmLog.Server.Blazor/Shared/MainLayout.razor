@@ -39,7 +39,7 @@
         {
             try
             {
-                Cars = await HttpClient.GetJsonAsync<IEnumerable<CarInfoDto>>("api/car");
+                Cars = await HttpClient.GetFromJsonAsync<IEnumerable<CarInfoDto>>("api/car");
             }
             catch (Exception ex)
             {

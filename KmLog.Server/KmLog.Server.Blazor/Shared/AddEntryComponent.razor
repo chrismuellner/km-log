@@ -113,7 +113,7 @@
             RefuelEntry.TotalDistance = RefuelEntry.LatestTotalDistance.Value + RefuelEntry.Distance;
         }
 
-        await HttpClient.PutJsonAsync("api/refuelentry", RefuelEntry);
+        await HttpClient.PutAsJsonAsync("api/refuelentry", RefuelEntry);
     }
 
     private async Task UpdateCarId(string carId)
@@ -128,9 +128,14 @@
     {
         try
         {
-            LatestRefuelEntry = await HttpClient.GetJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{ActiveCar.LicensePlate}/latest");
+            LatestRefuelEntry = await HttpClient.GetFromJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{ActiveCar.LicensePlate}/latest");
             RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
             RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
+
+            if (RefuelEntry.TotalDistance == 0)
+            {
+                RefuelEntry.TotalDistance = LatestRefuelEntry.TotalDistance;
+            }
         }
         catch (Exception ex)
         {
