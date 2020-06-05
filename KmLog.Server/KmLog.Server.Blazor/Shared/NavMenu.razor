@@ -1,6 +1,4 @@
-﻿@inject HttpClient HttpClient
-
-<div class="top-row pl-4 navbar navbar-dark">
+﻿<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Km Log</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -27,16 +25,3 @@
         }
     </ul>
 </div>
-
-@code {
-    private bool collapseNavMenu = true;
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    [CascadingParameter]
-    private IEnumerable<CarInfoDto> Cars { get; set; }
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}

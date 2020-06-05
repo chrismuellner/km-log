@@ -39,27 +39,3 @@
         }
     </ul>
 </nav>
-
-@code {
-    [Parameter]
-    public PagingParameters PagingParams { get; set; }
-
-    [Parameter]
-    public PagingResult<T> PagingResult { get; set; }
-
-    [Parameter]
-    public EventCallback<int> OnPagingChanged { get; set; }
-
-    int TotalPages => PagingResult != null
-        ? PagingResult.Count % PagingParams.PageSize > 0
-            ? (PagingResult.Count / PagingParams.PageSize) + 1
-            : PagingResult.Count / PagingParams.PageSize
-        : 0;
-    int CurrentPage => PagingParams.PageIndex + 1;
-
-
-    async Task PagingChanged(int page)
-    {
-        await OnPagingChanged.InvokeAsync(page);
-    }
-}

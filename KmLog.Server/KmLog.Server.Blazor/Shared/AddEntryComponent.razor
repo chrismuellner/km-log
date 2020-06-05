@@ -1,6 +1,4 @@
-﻿@inject HttpClient HttpClient
-
-<div class="card row">
+﻿<div class="card row">
     <div class="card-body">
         <div class="card-title">Add new Entry</div>
         <EditForm Model=@RefuelEntry OnValidSubmit=@FormSubmitted>
@@ -75,72 +73,3 @@
         </EditForm>
     </div>
 </div>
-
-@code {
-    [Parameter]
-    public string LicensePlate { get; set; }
-
-    [CascadingParameter]
-    private IEnumerable<CarInfoDto> Cars { get; set; }
-
-    private CarInfoDto ActiveCar { get; set; }
-
-    RefuelEntryInfoDto LatestRefuelEntry { get; set; }
-
-    RefuelEntryModel RefuelEntry { get; set; } = new RefuelEntryModel
-    {
-        Date = DateTime.Today
-    };
-
-    protected override async Task OnParametersSetAsync()
-    {
-        ActiveCar = LicensePlate == null
-            ? Cars.First()
-            : Cars.First(c => c.LicensePlate == LicensePlate);
-        RefuelEntry.CarId = ActiveCar.Id;
-
-        await LoadLatestRefuelEntry();
-    }
-
-    async Task FormSubmitted()
-    {
-        if (RefuelEntry.Distance == 0)
-        {
-            RefuelEntry.Distance = RefuelEntry.TotalDistance - RefuelEntry.LatestTotalDistance.Value;
-        }
-        if (RefuelEntry.TotalDistance == 0)
-        {
-            RefuelEntry.TotalDistance = RefuelEntry.LatestTotalDistance.Value + RefuelEntry.Distance;
-        }
-
-        await HttpClient.PutAsJsonAsync("api/refuelentry", RefuelEntry);
-    }
-
-    private async Task UpdateCarId(string carId)
-    {
-        RefuelEntry.CarIdAsString = carId;
-        ActiveCar = Cars.First(c => c.Id == RefuelEntry.CarId);
-
-        await LoadLatestRefuelEntry();
-    }
-
-    private async Task LoadLatestRefuelEntry()
-    {
-        try
-        {
-            LatestRefuelEntry = await HttpClient.GetFromJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{ActiveCar.LicensePlate}/latest");
-            RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
-            RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
-
-            if (RefuelEntry.TotalDistance == 0)
-            {
-                RefuelEntry.TotalDistance = LatestRefuelEntry.TotalDistance;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("No latest refuelentry exists for current car");
-            RefuelEntry.LatestTotalDistance = default;
-        }
-    }
-}

@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject HttpClient HttpClient
 
 <CascadingValue Value="@Cars">
     <div class="sidebar">
@@ -25,26 +24,3 @@
         </div>
     </div>
 </CascadingValue>
-
-@code {
-    [CascadingParameter]
-    Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-    IEnumerable<CarInfoDto> Cars { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateTask;
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            try
-            {
-                Cars = await HttpClient.GetFromJsonAsync<IEnumerable<CarInfoDto>>("api/car");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex.StackTrace);
-            }
-        }
-    }
-}

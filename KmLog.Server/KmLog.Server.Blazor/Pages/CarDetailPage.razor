@@ -1,7 +1,4 @@
 ﻿@page "/car/{licensePlate}"
-@inject NavigationManager NavigationManager
-@inject HttpClient HttpClient
-@attribute [Authorize]
 
 <div class="col">
     <div class="card row">
@@ -29,7 +26,7 @@
 
     <AddEntryComponent LicensePlate="@LicensePlate" />
 
-    @if (PagingResult != null && PagingResult.Count > 0)
+    @if (RefuelEntries != null && RefuelEntries.Count > 0)
     {
         <div class="row">
             <table class="table table-striped">
@@ -42,7 +39,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var refuelEntry in PagingResult.Items)
+                    @foreach (var refuelEntry in RefuelEntries.Items)
                     {
                         <tr>
                             <th scope="row">@refuelEntry.Date.ToShortDateString()</th>
@@ -53,58 +50,7 @@
                     }
                 </tbody>
             </table>
-            <PaginatorComponent PagingParams="@PagingParams" PagingResult="@PagingResult" OnPagingChanged="@PagingChanged" />
+            <PaginatorComponent PagingParams="@PagingParams" PagingResult="@RefuelEntries" OnPagingChanged="@PagingChanged" />
         </div>
     }
 </div>
-
-@code {
-    [CascadingParameter]
-    Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-    [Parameter]
-    public string LicensePlate { get; set; }
-
-    CarStatisticDto CarStatistic { get; set; }
-
-    PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
-    PagingResult<RefuelEntryInfoDto> PagingResult { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateTask;
-        if (!authState.User.Identity.IsAuthenticated)
-        {
-            NavigationManager.NavigateTo($"api/authentication/signin?redirectUri=/car/{LicensePlate}", true);
-        }
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            CarStatistic = await HttpClient.GetFromJsonAsync<CarStatisticDto>($"api/car/{LicensePlate}");
-        }
-        catch (Exception)
-        {
-            CarStatistic = null;
-            Console.Error.WriteLine("Could not parse json for car statistic!");
-        }
-
-        try
-        {
-            PagingResult = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
-        }
-        catch (Exception)
-        {
-            Console.Error.WriteLine("Could not parse json for refuel entries!");
-        }
-    }
-
-    async Task PagingChanged(int page)
-    {
-        PagingParams.PageIndex = page;
-        PagingResult = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>(
-            $"api/refuelentry/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
-    }
-}

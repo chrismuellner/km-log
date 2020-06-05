@@ -1,6 +1,4 @@
-﻿@inject HttpClient HttpClient
-
-<div class="card row">
+﻿<div class="card row">
     <div class="card-body">
         <div class="card-title">Add new Car</div>
         <EditForm Model=@Car OnValidSubmit=@FormSubmitted>
@@ -35,21 +33,3 @@
         </EditForm>
     </div>
 </div>
-
-
-@code {
-    CarModel Car { get; set; } = new CarModel();
-
-    async Task FormSubmitted()
-    {
-        try
-        {
-            await HttpClient.PutAsJsonAsync("api/car", Car);
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine(ex.StackTrace);
-        }
-        Car = new CarModel();
-    }
-}
