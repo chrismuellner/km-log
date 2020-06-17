@@ -1,30 +1,55 @@
 ﻿@page "/car/{licensePlate}"
 
 <div class="col">
-    <div class="card row">
-        <div class="card-body">
-            <h2 class="card-title">@LicensePlate</h2>
-            @if (CarStatistic != null)
-            {
-                <div class="row">
-                    <div class="col">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Avg. Distance: @CarStatistic.AvgDistance.ToString("N0") km</li>
-                            <li class="list-group-item">Total Distance: @CarStatistic.TotalDistance.ToString("N0") km</li>
-                        </ul>
-                    </div>
-                    <div class="col">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Avg. Cost: @CarStatistic.AvgCost.ToString("N2") €</li>
-                            <li class="list-group-item">Total Cost: @CarStatistic.TotalCost.ToString("N2") €</li>
-                        </ul>
-                    </div>
-                </div>
-            }
-        </div>
+    <div class="row">
+        <h3>@LicensePlate</h3>
     </div>
+    @if (CarStatistic != null)
+    {
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header">
+                    Statistics
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="row">
+                            <h5 class="col">Distance</h5>
+                            <div class="col">
+                                <div class="row justify-content-around">
+                                    <div>Total:</div>
+                                    <div>@CarStatistic.TotalDistance.ToString("N0") km</div>
+                                </div>
+                                <div class="row justify-content-around">
+                                    <div>Average:</div>
+                                    <div>@CarStatistic.AvgDistance.ToString("N0") km</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <h5 class="col">Cost</h5>
+                            <div class="col">
+                                <div class="row justify-content-around">
+                                    <div>Total:</div>
+                                    <div>@CarStatistic.TotalCost.ToString("N2") €</div>
+                                </div>
+                                <div class="row justify-content-around">
+                                    <div>Average:</div>
+                                    <div>@CarStatistic.AvgCost.ToString("N2") €</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
 
-    <AddEntryComponent LicensePlate="@LicensePlate" />
+    <div class="row">
+        <AddEntryComponent LicensePlate="@LicensePlate" />
+    </div>
 
     @if (RefuelEntries != null && RefuelEntries.Count > 0)
     {
@@ -42,7 +67,7 @@
                     @foreach (var refuelEntry in RefuelEntries.Items)
                     {
                         <tr>
-                            <th scope="row">@refuelEntry.Date.ToShortDateString()</th>
+                            <th scope="row">@refuelEntry.Date.ToString("dd.MM.yy")</th>
                             <td>@refuelEntry.Amount.ToString("N2") l</td>
                             <td>@refuelEntry.Cost.ToString("N2") €</td>
                             <td>@refuelEntry.Distance.ToString("N0") km</td>

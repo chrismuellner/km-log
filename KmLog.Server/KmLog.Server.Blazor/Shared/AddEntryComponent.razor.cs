@@ -32,6 +32,11 @@ namespace KmLog.Server.Blazor.Shared
 
         protected override async Task OnParametersSetAsync()
         {
+            if (Cars == null || !Cars.Any())
+            {
+                return;
+            }
+
             ActiveCar = LicensePlate == null
                 ? Cars.First()
                 : Cars.First(c => c.LicensePlate == LicensePlate);

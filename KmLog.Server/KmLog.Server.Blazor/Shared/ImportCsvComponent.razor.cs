@@ -20,9 +20,10 @@ namespace KmLog.Server.Blazor.Shared
                 var ms = new MemoryStream();
                 await file.Data.CopyToAsync(ms);
 
-                var content = new MultipartFormDataContent {
-                { new ByteArrayContent(ms.GetBuffer()), "\"upload\"", file.Name }
-            };
+                var content = new MultipartFormDataContent 
+                {
+                    { new ByteArrayContent(ms.GetBuffer()), "\"upload\"", file.Name }
+                };
                 await HttpClient.PostAsync("api/car/csv", content);
             }
         }
