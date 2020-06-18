@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
 using KmLog.Server.Domain;
@@ -14,32 +15,28 @@ namespace KmLog.Server.Logic
     public class CarLogic
     {
         private readonly ILogger<CarLogic> _logger;
-        private readonly ICarRepository _carRepository;
-        private readonly IRefuelEntryRepository _refuelEntryRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CarLogic(ILogger<CarLogic> logger, ICarRepository carRepository, IRefuelEntryRepository refuelEntryRepository,
-                        IUserRepository userRepository)
+        public CarLogic(ILogger<CarLogic> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _carRepository = carRepository;
-            _refuelEntryRepository = refuelEntryRepository;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CarDto> Add(CarDto car, string email)
         {
             try
             {
-                var user = await _userRepository.LoadByEmail(email);
-                if (user == null)
-                {
-                    return null;
-                }
+                using var transaction = _unitOfWork.BeginTransaction();
+                var user = await CheckUser(email);
 
                 car.UserId = user.Id;
 
-                await _carRepository.Add(car);
+                await _unitOfWork.CarRepository.Add(car);
+
+                await _unitOfWork.Save();
+                transaction.Commit();
+
                 return car;
             }
             catch (Exception ex)
@@ -53,13 +50,10 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var user = await _userRepository.LoadByEmail(email);
-                if (user == null)
-                {
-                    return null;
-                }
+                using var transaction = _unitOfWork.BeginTransaction();
+                var user = await CheckUser(email);
 
-                var cars = await _carRepository.LoadByUser(user.Id);
+                var cars = await _unitOfWork.CarRepository.LoadByUser(user.Id);
                 return cars;
             }
             catch (Exception ex)
@@ -73,7 +67,9 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var statistic = await _carRepository.LoadStatisticByLicensePlate(licensePlate);
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                var statistic = await _unitOfWork.CarRepository.LoadStatisticByLicensePlate(licensePlate);
                 return statistic;
             }
             catch (Exception ex)
@@ -87,14 +83,12 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var user = await _userRepository.LoadByEmail(email);
-                if (user == null)
-                {
-                    return null;
-                }
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                var user = await CheckUser(email);
 
                 var licensePlate = fileName.Split("_").First();
-                var car = await _carRepository.LoadByLicensePlate(licensePlate);
+                var car = await _unitOfWork.CarRepository.LoadByLicensePlate(licensePlate);
                 if (car == null)
                 {
                     car = new CarDto
@@ -102,7 +96,7 @@ namespace KmLog.Server.Logic
                         UserId = user.Id,
                         LicensePlate = licensePlate
                     };
-                    await _carRepository.Add(car);
+                    await _unitOfWork.CarRepository.Add(car);
                 }
 
                 var refuelEntries = new List<RefuelEntryDto>();
@@ -161,7 +155,10 @@ namespace KmLog.Server.Logic
                     refuelEntry.Distance = distance > 0 ? distance : 0; // todo: mark as invalid
                 }
 
-                await _refuelEntryRepository.Add(refuelEntries);
+                await _unitOfWork.RefuelEntryRepository.Add(refuelEntries);
+
+                await _unitOfWork.Save();
+                transaction.Commit();
                 return refuelEntries;
             }
             catch (Exception ex)
@@ -169,6 +166,12 @@ namespace KmLog.Server.Logic
                 _logger.LogError(ex, "Error importing file");
                 throw;
             }
+        }
+
+        private async Task<UserDto> CheckUser(string email)
+        {
+            var user = await _unitOfWork.UserRepository.LoadByEmail(email);
+            return user ?? throw new AuthenticationException("Unknown user");
         }
     }
 }

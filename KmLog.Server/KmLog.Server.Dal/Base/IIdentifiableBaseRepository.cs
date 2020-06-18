@@ -18,6 +18,6 @@ namespace KmLog.Server.Dal.Base
 
         Task<TDto> LoadById(Guid id);
 
-        Task Update(TDto entity);
+        void Update(TDto entity);
     }
 }

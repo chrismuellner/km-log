@@ -10,6 +10,8 @@ namespace KmLog.Server.Dal.DI
             services.AddScoped<ICarRepository, CarRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             return services;
         }
     }

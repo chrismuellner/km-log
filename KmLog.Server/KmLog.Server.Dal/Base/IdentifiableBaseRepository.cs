@@ -30,7 +30,6 @@ namespace KmLog.Server.Dal.Base
             var entity = Mapper.Map<TEntity>(dto);
 
             await Context.Set<TEntity>().AddAsync(entity);
-            await Context.SaveChangesAsync();
 
             Mapper.Map(entity, dto);
         }
@@ -40,17 +39,15 @@ namespace KmLog.Server.Dal.Base
             var entities = Mapper.Map<IEnumerable<TEntity>>(dtos);
 
             await Context.Set<TEntity>().AddRangeAsync(entities);
-            await Context.SaveChangesAsync();
 
             Mapper.Map(entities, dtos);
         }
 
-        public async Task Update(TDto dto)
+        public void Update(TDto dto)
         {
             var entity = Mapper.Map<TEntity>(dto);
 
-            Context.Set<TEntity>().Update(entity);
-            await Context.SaveChangesAsync();
+            Context.Entry(entity).State = EntityState.Modified;
 
             Mapper.Map(entity, dto);
         }
@@ -61,7 +58,6 @@ namespace KmLog.Server.Dal.Base
             var entity = Mapper.Map<TEntity>(dto);
 
             Context.Set<TEntity>().Remove(entity);
-            await Context.SaveChangesAsync();
         }
     }
 }

@@ -8,19 +8,21 @@ namespace KmLog.Server.Logic
     public class AuthenticationLogic
     {
         private readonly ILogger<AuthenticationLogic> _logger;
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthenticationLogic(ILogger<AuthenticationLogic> logger, IUserRepository userRepository)
+        public AuthenticationLogic(ILogger<AuthenticationLogic> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> CheckEmailExists(string email)
         {
             try
             {
-                return await _userRepository.CheckByEmail(email);
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                return await _unitOfWork.UserRepository.CheckByEmail(email);
             }
             catch (Exception ex)
             {

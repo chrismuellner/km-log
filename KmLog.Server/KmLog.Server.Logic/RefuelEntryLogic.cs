@@ -11,19 +11,24 @@ namespace KmLog.Server.Logic
     public class RefuelEntryLogic
     {
         private readonly ILogger<RefuelEntryLogic> _logger;
-        private readonly IRefuelEntryRepository _refuelEntryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RefuelEntryLogic(ILogger<RefuelEntryLogic> logger, IRefuelEntryRepository refuelEntryRepository)
+        public RefuelEntryLogic(ILogger<RefuelEntryLogic> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _refuelEntryRepository = refuelEntryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<RefuelEntryDto> Add(RefuelEntryDto refuelEntry)
         {
             try
             {
-                await _refuelEntryRepository.Add(refuelEntry);
+                using var transaction = _unitOfWork.BeginTransaction();
+                await _unitOfWork.RefuelEntryRepository.Add(refuelEntry);
+
+                await _unitOfWork.Save();
+                transaction.Commit();
+
                 return refuelEntry;
             }
             catch (Exception ex)
@@ -37,7 +42,10 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var result = await _refuelEntryRepository.LoadLatest(licensePlate);
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                var result = await _unitOfWork.RefuelEntryRepository
+                    .LoadLatest(licensePlate);
                 return result;
             }
             catch (Exception ex)
@@ -51,7 +59,10 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var refuelEntries = await _refuelEntryRepository.LoadByCarLicensePlate(licensePlate);
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                var refuelEntries = await _unitOfWork.RefuelEntryRepository
+                    .LoadByCarLicensePlate(licensePlate);
                 return refuelEntries;
             }
             catch (Exception ex)
@@ -65,7 +76,10 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var result = await _refuelEntryRepository.LoadPaged(pagingParameters, r => r.Date, r => r.Car.LicensePlate == licensePlate);
+                using var transaction = _unitOfWork.BeginTransaction();
+
+                var result = await _unitOfWork.RefuelEntryRepository
+                    .LoadPaged(pagingParameters, r => r.Date, r => r.Car.LicensePlate == licensePlate);
                 return result;
             }
             catch (Exception ex)
