@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using CsvHelper;
+using CsvHelper.Configuration;
 using KmLog.Server.Dal;
 using KmLog.Server.Domain;
 using KmLog.Server.Dto;
@@ -79,7 +81,7 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<RefuelEntryDto>> ImportCsv(string email, Stream fileStream, string fileName)
+        public async Task<IEnumerable<RefuelEntryDto>> ImportCsv(string email, Stream fileStream, IDictionary<string, string> formDict)
         {
             try
             {
@@ -87,7 +89,8 @@ namespace KmLog.Server.Logic
 
                 var user = await CheckUser(email);
 
-                var licensePlate = fileName.Split("_").First();
+                // load or add car
+                var licensePlate = formDict[nameof(CarDto.LicensePlate)];
                 var car = await _unitOfWork.CarRepository.LoadByLicensePlate(licensePlate);
                 if (car == null)
                 {
@@ -101,34 +104,37 @@ namespace KmLog.Server.Logic
 
                 var refuelEntries = new List<RefuelEntryDto>();
 
+                // read csv
                 using var reader = new StreamReader(fileStream);
-                while (!reader.EndOfStream)
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
-                    var line = await reader.ReadLineAsync();
-                    var attr = line
-                        .Split(";")
-                        .Select(str => str.Replace("\"", ""))
-                        .ToArray();
+                    Delimiter = ";",
+                    BadDataFound = null,
+                    MissingFieldFound = null
+                };
 
-                    var culture = CultureInfo.CreateSpecificCulture("de-AT");
-                    if (!DateTime.TryParseExact(attr[0], "yyyy_MM_dd",
-                            CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ||
-                        !long.TryParse(attr[2], NumberStyles.Any, culture, out var totalDistance) ||
-                        !double.TryParse(attr[3], NumberStyles.Any, culture, out var totalCost) ||
-                        !double.TryParse(attr[4], NumberStyles.Any, culture, out var amount) ||
-                        !double.TryParse(attr[5], NumberStyles.Any, culture, out var pricePerLiter))
-                    {
-                        continue;
-                    }
+                var indexes = formDict
+                    .Where(d => d.Key != nameof(CarDto.LicensePlate))
+                    .ToDictionary(d => d.Key, d => int.Parse(d.Value));
 
+                using var csv = new CsvReader(reader, config);
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
                     var refuelEntry = new RefuelEntryDto
                     {
-                        Date = date,
-                        Amount = amount,
-                        Cost = totalCost,
-                        TotalDistance = totalDistance,
-                        PricePerLiter = pricePerLiter,
-                        TankStatus = attr[7] switch
+                        Date = DateTime.ParseExact( // todo: datetime format as parameter
+                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Date)]), "yyyy_MM_dd", CultureInfo.InvariantCulture, DateTimeStyles.None),
+                        Amount = double.Parse(
+                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Amount)])),
+                        Cost = double.Parse(
+                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Cost)])),
+                        TotalDistance = long.Parse(
+                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.TotalDistance)]), NumberStyles.Any),
+                        PricePerLiter = double.Parse(
+                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.PricePerLiter)])),
+                        TankStatus = csv.GetField<string>(indexes[nameof(RefuelEntryDto.TankStatus)]) switch
                         {
                             "tank full" => TankStatus.Full,
                             "tank partial" => TankStatus.Partial,
@@ -140,10 +146,14 @@ namespace KmLog.Server.Logic
                     refuelEntries.Add(refuelEntry);
                 }
 
+                // calculate distances
                 long previousTotalDistance = 0;
-                for (int i = refuelEntries.Count - 1; i >= 0; i--)
+                var orderedEntries = refuelEntries
+                    .OrderByDescending(e => e.Date)
+                    .ToArray();
+                for (int i = orderedEntries.Count() - 1; i >= 0; i--)
                 {
-                    var refuelEntry = refuelEntries[i];
+                    var refuelEntry = orderedEntries[i];
 
                     long distance = 0;
                     if (previousTotalDistance > 0)
@@ -159,6 +169,7 @@ namespace KmLog.Server.Logic
 
                 await _unitOfWork.Save();
                 transaction.Commit();
+
                 return refuelEntries;
             }
             catch (Exception ex)

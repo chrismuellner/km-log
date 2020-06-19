@@ -58,15 +58,17 @@ namespace KmLog.Server.WebApi.Controllers
         [HttpPost("csv")]
         public async Task<IActionResult> UploadCsv()
         {
-            if (HttpContext.Request.Form.Files.Any())
+            var form = HttpContext.Request.Form;
+            if (form.Files.Any())
             {
-                var file = HttpContext.Request.Form.Files.First();
-                var fileStream = file.OpenReadStream();
-                var fileName = file.FileName;
+                var file = form.Files.First();
+
+                var formDict = form.ToDictionary(g => g.Key, g => g.Value.ToString());
+
+                using var fileStream = file.OpenReadStream();
 
                 var email = User.GetEmail();
-
-                var refuelEntries = await _carLogic.ImportCsv(email, fileStream, fileName);
+                var refuelEntries = await _carLogic.ImportCsv(email, fileStream, formDict);
                 if (refuelEntries == null)
                 {
                     return NotFound();
