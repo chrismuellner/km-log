@@ -22,9 +22,9 @@
                                 <InputSelect @bind-Value=Model.DateColumn class="form-control" id="formGroupDate">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                        {
+                                    {
                                         <option value="@column">@column</option>
-                                        }
+                                    }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.DateColumn" />
                             </div>
@@ -43,9 +43,9 @@
                                 <InputSelect @bind-Value=Model.TotalDistanceColumn class="form-control" id="formGroupTotalDistance">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                        {
+                                    {
                                         <option value="@column">@column</option>
-                                        }
+                                    }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.TotalDistanceColumn" />
                             </div>
@@ -64,9 +64,9 @@
                                 <InputSelect @bind-Value=Model.AmountColumn class="form-control" id="formGroupAmount">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                        {
+                                    {
                                         <option value="@column">@column</option>
-                                        }
+                                    }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.AmountColumn" />
                             </div>
@@ -85,9 +85,9 @@
                                 <InputSelect @bind-Value=Model.CostColumn class="form-control" id="formGroupCost">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                        {
+                                    {
                                         <option value="@column">@column</option>
-                                        }
+                                    }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.CostColumn" />
                             </div>

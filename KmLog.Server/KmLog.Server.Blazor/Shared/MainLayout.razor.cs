@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
-using KmLog.Server.Dto;
+using KmLog.Server.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -12,12 +9,10 @@ namespace KmLog.Server.Blazor.Shared
     public partial class MainLayout
     {
         [Inject]
-        private HttpClient HttpClient { get; set; }
+        private AppState State { get; set; }
 
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-        private IEnumerable<CarInfoDto> Cars { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -26,7 +21,7 @@ namespace KmLog.Server.Blazor.Shared
             {
                 try
                 {
-                    Cars = await HttpClient.GetFromJsonAsync<IEnumerable<CarInfoDto>>("api/car");
+                    await State.UpdateCars();
                 }
                 catch (Exception ex)
                 {

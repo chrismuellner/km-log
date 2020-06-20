@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using KmLog.Server.Blazor.Services;
 using KmLog.Server.Blazor.Validation.Models;
 using KmLog.Server.Dto;
 using Microsoft.AspNetCore.Components;
@@ -15,11 +16,11 @@ namespace KmLog.Server.Blazor.Shared
         [Inject]
         private HttpClient HttpClient { get; set; }
 
+        [Inject]
+        private AppState State { get; set; }
+
         [Parameter]
         public string LicensePlate { get; set; }
-
-        [CascadingParameter]
-        private IEnumerable<CarInfoDto> Cars { get; set; }
 
         private CarInfoDto ActiveCar { get; set; }
 
@@ -32,14 +33,14 @@ namespace KmLog.Server.Blazor.Shared
 
         protected override async Task OnParametersSetAsync()
         {
-            if (Cars == null || !Cars.Any())
+            if (State.Cars == null || !State.Cars.Any())
             {
                 return;
             }
 
             ActiveCar = LicensePlate == null
-                ? Cars.First()
-                : Cars.First(c => c.LicensePlate == LicensePlate);
+                ? State.Cars.First()
+                : State.Cars.First(c => c.LicensePlate == LicensePlate);
             RefuelEntry.CarId = ActiveCar.Id;
 
             await LoadLatestRefuelEntry();
@@ -62,7 +63,7 @@ namespace KmLog.Server.Blazor.Shared
         private async Task UpdateCarId(string carId)
         {
             RefuelEntry.CarIdAsString = carId;
-            ActiveCar = Cars.First(c => c.Id == RefuelEntry.CarId);
+            ActiveCar = State.Cars.First(c => c.Id == RefuelEntry.CarId);
 
             await LoadLatestRefuelEntry();
         }
@@ -80,7 +81,7 @@ namespace KmLog.Server.Blazor.Shared
                     RefuelEntry.TotalDistance = LatestRefuelEntry.TotalDistance;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine("No latest refuelentry exists for current car");
                 RefuelEntry.LatestTotalDistance = default;

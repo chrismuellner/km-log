@@ -3,7 +3,7 @@
         Add new Entry
     </div>
     <div class="card-body">
-        @if (Cars != null && Cars.Any())
+        @if (State.Cars != null && State.Cars.Any())
         {
             <EditForm Model=@RefuelEntry OnValidSubmit=@FormSubmitted>
                 <FluentValidationValidator ValidatorType=typeof(RefuelEntryValidator) />
@@ -14,12 +14,9 @@
                         <label for="formGroupCar">Car</label>
                         <InputSelect ValueChanged="(string carId) => UpdateCarId(carId)" ValueExpression="() => RefuelEntry.CarIdAsString" 
                                      Value="RefuelEntry.CarIdAsString" class="form-control" id="formGroupCar">
-                            @if (Cars != null)
+                            @foreach (var car in State.Cars)
                             {
-                                @foreach (var car in Cars)
-                                {
-                                    <option value="@car.Id.ToString()">@car.LicensePlate</option>
-                                }
+                                <option value="@car.Id.ToString()">@car.LicensePlate</option>
                             }
                         </InputSelect>
                     </div>

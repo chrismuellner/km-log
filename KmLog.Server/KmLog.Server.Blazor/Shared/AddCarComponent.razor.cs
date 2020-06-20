@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using KmLog.Server.Blazor.Services;
 using KmLog.Server.Blazor.Validation.Models;
 using Microsoft.AspNetCore.Components;
 
@@ -12,6 +13,9 @@ namespace KmLog.Server.Blazor.Shared
         [Inject]
         private HttpClient HttpClient { get; set; }
 
+        [Inject]
+        private AppState State { get; set; }
+
         private CarModel Car { get; set; } = new CarModel();
 
         private async Task FormSubmitted()
@@ -19,6 +23,8 @@ namespace KmLog.Server.Blazor.Shared
             try
             {
                 await HttpClient.PutAsJsonAsync("api/car", Car);
+
+                await State.UpdateCars();
             }
             catch (Exception ex)
             {

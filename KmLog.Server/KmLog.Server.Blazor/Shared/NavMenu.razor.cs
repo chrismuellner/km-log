@@ -1,21 +1,25 @@
-﻿using System.Collections.Generic;
-using KmLog.Server.Dto;
+﻿using KmLog.Server.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace KmLog.Server.Blazor.Shared
 {
     public partial class NavMenu
     {
-        private bool collapseNavMenu = true;
+        private bool _collapseNavMenu = true;
 
-        private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+        private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
-        [CascadingParameter]
-        private IEnumerable<CarInfoDto> Cars { get; set; }
+        [Inject]
+        private AppState State { get; set; }
+
+        protected override void OnInitialized()
+        {
+            State.OnCarsChanged += StateHasChanged;
+        }
 
         private void ToggleNavMenu()
         {
-            collapseNavMenu = !collapseNavMenu;
+            _collapseNavMenu = !_collapseNavMenu;
         }
     }
 }

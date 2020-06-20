@@ -12,9 +12,9 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-        @if (Cars != null)
+        @if (State.Cars != null)
         {
-            @foreach (var car in Cars)
+            @foreach (var car in State.Cars)
             {
                 <li class="nav-item px-3">
                     <NavLink class="nav-link" href="@($"car/{car.LicensePlate}")">
