@@ -33,6 +33,15 @@ namespace KmLog.Server.Dal
             return Mapper.Map<IEnumerable<CarInfoDto>>(cars);
         }
 
+        public async Task<IEnumerable<CarInfoDto>> LoadByGroup(Guid groupId)
+        {
+            var cars = await Query()
+                .Where(c => c.User.GroupId == groupId)
+                .ToListAsync();
+
+            return Mapper.Map<IEnumerable<CarInfoDto>>(cars);
+        }
+
         public async Task<CarStatisticDto> LoadStatisticByLicensePlate(string licensePlate)
         {
             var statistic = await Context.RefuelEntries

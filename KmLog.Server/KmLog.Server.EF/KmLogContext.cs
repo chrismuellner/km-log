@@ -13,8 +13,12 @@ namespace KmLog.Server.EF
         }
 
         public DbSet<Car> Cars { get; set; }
+
         public DbSet<RefuelEntry> RefuelEntries { get; set; }
+
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Group> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

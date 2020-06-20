@@ -1,0 +1,56 @@
+﻿@page "/settings"
+
+<div class="col">
+    <div class="row">
+        <div class="card w-100">
+            <div class="card-header">
+                Join Group
+            </div>
+            <div class="card-body">
+                @if (Groups != null && Groups.Any())
+                {
+                    <EditForm Model=@JoinGroup OnValidSubmit=@JoinFormSubmitted>
+                        <FluentValidationValidator ValidatorType=typeof(JoinGroupValidator) />
+
+                        <div class="form-group">
+                            <label for="formGroupName">Group</label>
+                            <InputSelect ValueChanged="(string id) => UpdateGroupId(id)" ValueExpression="() => JoinGroup.IdAsString"
+                                         class="form-control" id="formGroupName">
+                                <option value="" selected="@(!User.GroupId.HasValue)">--</option>
+                                @foreach (var group in Groups)
+                                {
+                                    <option value="@group.Id.ToString()" selected="@(group.Id == User.GroupId)">@group.Name</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => JoinGroup.Id" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Join</button>
+                    </EditForm>
+                }
+                else
+                {
+                    <p>No Groups yet!</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card w-100">
+            <div class="card-header">
+                Add Group
+            </div>
+            <div class="card-body">
+                <EditForm Model=@AddGroup OnValidSubmit=@AddFormSubmitted>
+                    <FluentValidationValidator ValidatorType=typeof(AddGroupValidator) />
+
+                    <div class="form-group">
+                        <label for="formGroupName">Name</label>
+                        <InputText @bind-Value=AddGroup.Name class="form-control" id="formGroupName" placeholder="Name" />
+                        <ValidationMessage For="() => AddGroup.Name" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>

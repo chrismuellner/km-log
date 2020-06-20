@@ -9,12 +9,14 @@ namespace KmLog.Server.Dal
         private readonly KmLogContext _context;
 
         public UnitOfWork(KmLogContext kmLogContext,
-                          ICarRepository carRepository, IUserRepository userRepository, IRefuelEntryRepository refuelEntryRepository)
+                          ICarRepository carRepository, IUserRepository userRepository, 
+                          IRefuelEntryRepository refuelEntryRepository, IGroupRepository groupRepository)
         {
             _context = kmLogContext;
             CarRepository = carRepository;
             UserRepository = userRepository;
             RefuelEntryRepository = refuelEntryRepository;
+            GroupRepository = groupRepository;
         }
 
         public ICarRepository CarRepository { get; }
@@ -22,6 +24,8 @@ namespace KmLog.Server.Dal
         public IUserRepository UserRepository { get; }
 
         public IRefuelEntryRepository RefuelEntryRepository { get; }
+
+        public IGroupRepository GroupRepository { get; }
 
         public IDbContextTransaction BeginTransaction() => _context.Database.BeginTransaction();
 

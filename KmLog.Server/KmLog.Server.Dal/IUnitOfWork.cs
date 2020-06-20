@@ -11,6 +11,8 @@ namespace KmLog.Server.Dal
 
         IRefuelEntryRepository RefuelEntryRepository { get; }
 
+        IGroupRepository GroupRepository { get; }
+
         IDbContextTransaction BeginTransaction();
 
         Task Save();

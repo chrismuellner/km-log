@@ -4,9 +4,18 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <div>
-                <span class="username">@context.User.Identity.Name</span>
-                <a class="btn btn-danger" href="api/authentication/signout"><span class="oi oi-account-logout"></span> Sign out</a>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                    @context.User.Identity.Name
+                </button>
+                <div class="dropdown-menu">
+                    <NavLink class="dropdown-item" href="/settings" Match="NavLinkMatch.All">
+                        <span class="oi oi-wrench" aria-hidden="true"></span> Settings
+                    </NavLink>
+                    <a class="dropdown-item" href="api/authentication/signout">
+                        <span class="oi oi-account-logout"></span> Sign out
+                    </a>
+                </div>
             </div>
         </Authorized>
         <NotAuthorized>

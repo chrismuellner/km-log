@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using KmLog.Server.Dal.Base;
 using KmLog.Server.Dto;
@@ -25,6 +26,12 @@ namespace KmLog.Server.Dal
         {
             return await Query()
                 .AnyAsync(u => u.Email == email);
+        }
+
+        protected override IQueryable<User> Query()
+        {
+            return base.Query()
+                .Include(u => u.Group);
         }
     }
 }

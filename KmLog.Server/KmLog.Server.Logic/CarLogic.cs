@@ -55,8 +55,12 @@ namespace KmLog.Server.Logic
                 using var transaction = _unitOfWork.BeginTransaction();
                 var user = await CheckUser(email);
 
-                var cars = await _unitOfWork.CarRepository.LoadByUser(user.Id);
-                return cars;
+                if (user.GroupId.HasValue)
+                {
+                    return await _unitOfWork.CarRepository.LoadByGroup(user.GroupId.Value);
+                }
+
+                return await _unitOfWork.CarRepository.LoadByUser(user.Id);
             }
             catch (Exception ex)
             {

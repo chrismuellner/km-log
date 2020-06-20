@@ -27,6 +27,8 @@ namespace KmLog.Server.Blazor
             builder.Services.AddScoped<RefuelEntryValidator>();
             builder.Services.AddScoped<CarValidator>();
             builder.Services.AddScoped<ImportValidator>();
+            builder.Services.AddScoped<JoinGroupValidator>();
+            builder.Services.AddScoped<AddGroupValidator>();
 
             await builder.Build().RunAsync();
         }

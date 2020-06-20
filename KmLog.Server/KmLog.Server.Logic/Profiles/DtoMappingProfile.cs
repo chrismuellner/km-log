@@ -13,6 +13,7 @@ namespace KmLog.Server.Logic.Profiles
             CreateMap<Car, CarDto>();
             CreateMap<Car, CarInfoDto>();
             CreateMap<User, UserDto>();
+            CreateMap<Group, GroupDto>();
         }
     }
 }

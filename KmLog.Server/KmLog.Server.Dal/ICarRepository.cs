@@ -13,6 +13,8 @@ namespace KmLog.Server.Dal
 
         Task<IEnumerable<CarInfoDto>> LoadByUser(Guid userId);
 
+        Task<IEnumerable<CarInfoDto>> LoadByGroup(Guid groupId);
+
         Task<CarStatisticDto> LoadStatisticByLicensePlate(string licensePlate);
     }
 }
