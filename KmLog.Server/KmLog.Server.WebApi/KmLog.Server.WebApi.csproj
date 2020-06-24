@@ -5,18 +5,18 @@
     <UserSecretsId>4c919045-084e-4798-add9-8c7a1d0f31e3</UserSecretsId>
     <AssemblyName>KmLog.Server.WebApi</AssemblyName>
     <RootNamespace>KmLog.Server.WebApi</RootNamespace>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(BlazorWebAssemblyVersion)" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="3.1.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KmLog.Server.Blazor\KmLog.Server.Blazor.csproj" />
-    <ProjectReference Include="..\KmLog.Server.Dal\KmLog.Server.Dal.csproj" />
-    <ProjectReference Include="..\KmLog.Server.EF\KmLog.Server.EF.csproj" />
     <ProjectReference Include="..\KmLog.Server.Logic\KmLog.Server.Logic.csproj" />
   </ItemGroup>
 
