@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build project
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,6 @@ jobs:
       run: dotnet build -c Release
 
   build-package:
-    if: success()
     name: Build and Publish Github Package via Dockerfile
     runs-on: ubuntu-latest
     
