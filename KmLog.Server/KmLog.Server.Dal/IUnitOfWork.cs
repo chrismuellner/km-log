@@ -1,17 +1,18 @@
 ﻿using System.Threading.Tasks;
+using KmLog.Server.Model;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KmLog.Server.Dal
 {
     public interface IUnitOfWork
     {
-        ICarRepository CarRepository { get; }
-        
-        IUserRepository UserRepository { get; }
+        IRepository<Car> CarRepository { get; }
 
-        IRefuelEntryRepository RefuelEntryRepository { get; }
+        IRepository<User> UserRepository { get; }
 
-        IGroupRepository GroupRepository { get; }
+        IRepository<RefuelEntry> RefuelEntryRepository { get; }
+
+        IRepository<Group> GroupRepository { get; }
 
         IDbContextTransaction BeginTransaction();
 

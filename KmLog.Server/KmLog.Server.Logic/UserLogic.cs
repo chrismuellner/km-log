@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using AutoMapper;
 using KmLog.Server.Dal;
 using KmLog.Server.Dto;
+using KmLog.Server.Model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
@@ -11,11 +14,13 @@ namespace KmLog.Server.Logic
     public class UserLogic
     {
         private readonly ILogger<UserLogic> _logger;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserLogic(ILogger<UserLogic> logger, IUnitOfWork unitOfWork)
+        public UserLogic(ILogger<UserLogic> logger, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
@@ -25,10 +30,13 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                await _unitOfWork.GroupRepository.Add(group);
+                var entity = _mapper.Map<Group>(group);
+                await _unitOfWork.GroupRepository.Add(entity);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
+
+                _mapper.Map(entity, group);
 
                 return group;
             }
@@ -57,8 +65,8 @@ namespace KmLog.Server.Logic
         {
             try
             {
-                var groups = await _unitOfWork.GroupRepository.LoadAll();
-                return groups;
+                var groups = await _unitOfWork.GroupRepository.Query().ToListAsync();
+                return _mapper.Map<IEnumerable<GroupDto>>(groups);
             }
             catch (Exception ex)
             {
@@ -76,7 +84,8 @@ namespace KmLog.Server.Logic
 
                 user.GroupId = group.Id;
 
-                _unitOfWork.UserRepository.Update(user);
+                var entity = _mapper.Map<User>(user);
+                _unitOfWork.UserRepository.Update(entity);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
@@ -92,8 +101,10 @@ namespace KmLog.Server.Logic
 
         private async Task<UserDto> CheckUser(string email)
         {
-            var user = await _unitOfWork.UserRepository.LoadByEmail(email);
-            return user ?? throw new AuthenticationException("Unknown user");
+            var user = await _unitOfWork.UserRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
+            return user != null
+                ? _mapper.Map<UserDto>(user)
+                : throw new AuthenticationException("Unknown user");
         }
     }
 }

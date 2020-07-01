@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using KmLog.Server.Dal;
 using KmLog.Server.Domain;
 using KmLog.Server.Dto;
+using KmLog.Server.Model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
@@ -11,11 +15,13 @@ namespace KmLog.Server.Logic
     public class RefuelEntryLogic
     {
         private readonly ILogger<RefuelEntryLogic> _logger;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RefuelEntryLogic(ILogger<RefuelEntryLogic> logger, IUnitOfWork unitOfWork)
+        public RefuelEntryLogic(ILogger<RefuelEntryLogic> logger, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
@@ -24,10 +30,15 @@ namespace KmLog.Server.Logic
             try
             {
                 using var transaction = _unitOfWork.BeginTransaction();
-                await _unitOfWork.RefuelEntryRepository.Add(refuelEntry);
+
+                var entity = _mapper.Map<RefuelEntry>(refuelEntry);
+
+                await _unitOfWork.RefuelEntryRepository.Add(entity);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
+
+                _mapper.Map(entity, refuelEntry);
 
                 return refuelEntry;
             }
@@ -44,9 +55,11 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                var result = await _unitOfWork.RefuelEntryRepository
-                    .LoadLatest(licensePlate);
-                return result;
+                var result = await _unitOfWork.RefuelEntryRepository.Query()
+                    .OrderByDescending(re => re.Date)
+                    .FirstOrDefaultAsync(re => re.Car.LicensePlate == licensePlate);
+
+                return _mapper.Map<RefuelEntryInfoDto>(result);
             }
             catch (Exception ex)
             {
@@ -61,9 +74,11 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                var refuelEntries = await _unitOfWork.RefuelEntryRepository
-                    .LoadByCarLicensePlate(licensePlate);
-                return refuelEntries;
+                var refuelEntries = await _unitOfWork.RefuelEntryRepository.Query()
+                    .Where(re => re.Car.LicensePlate == licensePlate)
+                    .ToListAsync();
+
+                return _mapper.Map<IEnumerable<RefuelEntryDto>>(refuelEntries);
             }
             catch (Exception ex)
             {
@@ -78,9 +93,20 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                var result = await _unitOfWork.RefuelEntryRepository
-                    .LoadPaged(pagingParameters, r => r.Date, r => r.Car.LicensePlate == licensePlate);
-                return result;
+                var query = _unitOfWork.RefuelEntryRepository.Query()
+                    .Where(re => re.Car.LicensePlate == licensePlate);
+
+                var result = await query
+                    .OrderByDescending(re => re.Date)
+                    .Skip(pagingParameters.ItemsToSkip)
+                    .Take(pagingParameters.PageSize)
+                    .ToListAsync();
+
+                return new PagingResult<RefuelEntryDto>
+                {
+                    Count = await query.CountAsync(),
+                    Items = _mapper.Map<IEnumerable<RefuelEntryDto>>(result)
+                };
             }
             catch (Exception ex)
             {

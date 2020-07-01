@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using KmLog.Server.EF;
+using KmLog.Server.Model;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KmLog.Server.Dal
@@ -9,8 +10,8 @@ namespace KmLog.Server.Dal
         private readonly KmLogContext _context;
 
         public UnitOfWork(KmLogContext kmLogContext,
-                          ICarRepository carRepository, IUserRepository userRepository, 
-                          IRefuelEntryRepository refuelEntryRepository, IGroupRepository groupRepository)
+                          IRepository<Car> carRepository, IRepository<User> userRepository,
+                          IRepository<RefuelEntry> refuelEntryRepository, IRepository<Group> groupRepository)
         {
             _context = kmLogContext;
             CarRepository = carRepository;
@@ -19,13 +20,13 @@ namespace KmLog.Server.Dal
             GroupRepository = groupRepository;
         }
 
-        public ICarRepository CarRepository { get; }
+        public IRepository<Car> CarRepository { get; }
 
-        public IUserRepository UserRepository { get; }
+        public IRepository<User> UserRepository { get; }
 
-        public IRefuelEntryRepository RefuelEntryRepository { get; }
+        public IRepository<RefuelEntry> RefuelEntryRepository { get; }
 
-        public IGroupRepository GroupRepository { get; }
+        public IRepository<Group> GroupRepository { get; }
 
         public IDbContextTransaction BeginTransaction() => _context.Database.BeginTransaction();
 

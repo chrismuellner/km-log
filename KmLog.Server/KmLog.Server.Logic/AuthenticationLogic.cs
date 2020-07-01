@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
@@ -22,7 +23,8 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                return await _unitOfWork.UserRepository.CheckByEmail(email);
+                return await _unitOfWork.UserRepository.Query()
+                    .AnyAsync(u => u.Email == email);
             }
             catch (Exception ex)
             {

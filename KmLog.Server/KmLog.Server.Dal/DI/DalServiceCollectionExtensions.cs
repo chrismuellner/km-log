@@ -6,10 +6,7 @@ namespace KmLog.Server.Dal.DI
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IRefuelEntryRepository, RefuelEntryRepository>();
-            services.AddScoped<ICarRepository, CarRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

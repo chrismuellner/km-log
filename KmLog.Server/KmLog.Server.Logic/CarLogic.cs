@@ -5,11 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
 using KmLog.Server.Dal;
 using KmLog.Server.Domain;
 using KmLog.Server.Dto;
+using KmLog.Server.Model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace KmLog.Server.Logic
@@ -17,11 +20,13 @@ namespace KmLog.Server.Logic
     public class CarLogic
     {
         private readonly ILogger<CarLogic> _logger;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CarLogic(ILogger<CarLogic> logger, IUnitOfWork unitOfWork)
+        public CarLogic(ILogger<CarLogic> logger, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
@@ -34,10 +39,13 @@ namespace KmLog.Server.Logic
 
                 car.UserId = user.Id;
 
-                await _unitOfWork.CarRepository.Add(car);
+                var entity = _mapper.Map<Car>(car);
+                await _unitOfWork.CarRepository.Add(entity);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
+
+                _mapper.Map(entity, car);
 
                 return car;
             }
@@ -55,12 +63,11 @@ namespace KmLog.Server.Logic
                 using var transaction = _unitOfWork.BeginTransaction();
                 var user = await CheckUser(email);
 
-                if (user.GroupId.HasValue)
-                {
-                    return await _unitOfWork.CarRepository.LoadByGroup(user.GroupId.Value);
-                }
+                var cars = await _unitOfWork.CarRepository.Query()
+                    .Where(c => user.GroupId.HasValue ? c.User.GroupId == user.GroupId : c.UserId == user.Id)
+                    .ToListAsync();
 
-                return await _unitOfWork.CarRepository.LoadByUser(user.Id);
+                return _mapper.Map<IEnumerable<CarDto>>(cars);
             }
             catch (Exception ex)
             {
@@ -75,7 +82,17 @@ namespace KmLog.Server.Logic
             {
                 using var transaction = _unitOfWork.BeginTransaction();
 
-                var statistic = await _unitOfWork.CarRepository.LoadStatisticByLicensePlate(licensePlate);
+                var statistic = await _unitOfWork.RefuelEntryRepository.Query()
+                    .Where(r => r.Car.LicensePlate == licensePlate)
+                    .GroupBy(r => r.Car.LicensePlate, (k, g) => new CarStatisticDto
+                    {
+                        AvgCost = g.Average(r => r.Cost),
+                        AvgDistance = g.Average(r => r.Distance),
+                        TotalCost = g.Sum(r => r.Cost),
+                        TotalDistance = g.Max(r => r.TotalDistance)
+                    })
+                    .FirstOrDefaultAsync();
+
                 return statistic;
             }
             catch (Exception ex)
@@ -95,10 +112,11 @@ namespace KmLog.Server.Logic
 
                 // load or add car
                 var licensePlate = formDict[nameof(CarDto.LicensePlate)];
-                var car = await _unitOfWork.CarRepository.LoadByLicensePlate(licensePlate);
+                var car = await _unitOfWork.CarRepository.Query()
+                    .FirstOrDefaultAsync(c => c.LicensePlate == licensePlate);
                 if (car == null)
                 {
-                    car = new CarDto
+                    car = new Car
                     {
                         UserId = user.Id,
                         LicensePlate = licensePlate
@@ -169,7 +187,8 @@ namespace KmLog.Server.Logic
                     refuelEntry.Distance = distance > 0 ? distance : 0; // todo: mark as invalid
                 }
 
-                await _unitOfWork.RefuelEntryRepository.Add(refuelEntries);
+                var entries = _mapper.Map<IEnumerable<RefuelEntry>>(refuelEntries);
+                await _unitOfWork.RefuelEntryRepository.Add(entries);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
@@ -185,8 +204,10 @@ namespace KmLog.Server.Logic
 
         private async Task<UserDto> CheckUser(string email)
         {
-            var user = await _unitOfWork.UserRepository.LoadByEmail(email);
-            return user ?? throw new AuthenticationException("Unknown user");
+            var user = await _unitOfWork.UserRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
+            return user != null 
+                ? _mapper.Map<UserDto>(user) 
+                : throw new AuthenticationException("Unknown user");
         }
     }
 }
