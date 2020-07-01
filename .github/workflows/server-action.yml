@@ -4,10 +4,11 @@ on:
   push:
     paths: 
       - KmLog.Server/**
+      - .github/workflows/server-action.yml
 
 jobs:
   build:
-    name: Build
+    name: Build project
     runs-on: ubuntu-latest
 
     steps:
@@ -17,8 +18,20 @@ jobs:
       with:
         dotnet-version: 3.1.300
     - name: Build with dotnet
+      working-directory: KmLog.Server
       shell: bash
-      run: |
-        pushd ./KmLog.Server
-        dotnet build -c Release
-        popd
+      run: dotnet build -c Release
+
+  build-package:
+    name: Build and Publish Github Package via Dockerfile
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2 # Checking out the repo
+      - name: Build and Publish latest Docker image
+        uses: VaultVulp/gp-docker-action@1.1.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          image-name: kmlogserver
+          dockerfile: KmLog.Server/KmLog.Server.WebApi/Dockerfile
+          build-context: KmLog.Server
