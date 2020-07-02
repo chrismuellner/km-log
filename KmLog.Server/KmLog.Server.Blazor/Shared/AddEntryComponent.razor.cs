@@ -57,7 +57,7 @@ namespace KmLog.Server.Blazor.Shared
                 RefuelEntry.TotalDistance = RefuelEntry.LatestTotalDistance.Value + RefuelEntry.Distance;
             }
 
-            await HttpClient.PutAsJsonAsync("api/refuelentry", RefuelEntry);
+            await HttpClient.PutAsJsonAsync("api/entry/refuel", RefuelEntry);
         }
 
         private async Task UpdateCarId(string carId)
@@ -72,7 +72,7 @@ namespace KmLog.Server.Blazor.Shared
         {
             try
             {
-                LatestRefuelEntry = await HttpClient.GetFromJsonAsync<RefuelEntryInfoDto>($"api/refuelentry/{ActiveCar.LicensePlate}/latest");
+                LatestRefuelEntry = await HttpClient.GetFromJsonAsync<RefuelEntryInfoDto>($"api/entry/refuel/{ActiveCar.LicensePlate}/latest");
                 RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
                 RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
 

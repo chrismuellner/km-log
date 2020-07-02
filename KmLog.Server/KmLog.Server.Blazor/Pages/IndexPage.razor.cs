@@ -17,7 +17,7 @@ namespace KmLog.Server.Blazor.Pages
             var authState = await AuthenticationStateTask;
             if (!authState.User.Identity.IsAuthenticated)
             {
-                NavigationManager.NavigateTo("api/authentication/signin?redirectUri=/", true);
+                NavigationManager.NavigateTo("api/authentication/signin", true);
             }
         }
     }

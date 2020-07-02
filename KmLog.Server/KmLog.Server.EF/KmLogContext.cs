@@ -16,6 +16,8 @@ namespace KmLog.Server.EF
 
         public DbSet<RefuelEntry> RefuelEntries { get; set; }
 
+        public DbSet<ServiceEntry> ServiceEntries { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Group> Groups { get; set; }

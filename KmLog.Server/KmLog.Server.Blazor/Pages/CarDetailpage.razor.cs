@@ -27,7 +27,7 @@ namespace KmLog.Server.Blazor.Pages
 
         private CarStatisticDto CarStatistic { get; set; }
 
-        private PagingParameters PagingParams { get; set; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
+        private PagingParameters PagingParams { get; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
 
         private PagingResult<RefuelEntryInfoDto> RefuelEntries { get; set; }
 
@@ -36,7 +36,7 @@ namespace KmLog.Server.Blazor.Pages
             var authState = await AuthenticationStateTask;
             if (!authState.User.Identity.IsAuthenticated)
             {
-                NavigationManager.NavigateTo($"api/authentication/signin?redirectUri=/car/{LicensePlate}", true);
+                NavigationManager.NavigateTo($"api/authentication/signin", true);
             }
         }
 
@@ -54,7 +54,7 @@ namespace KmLog.Server.Blazor.Pages
 
             try
             {
-                RefuelEntries = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/refuelentry/{LicensePlate}");
+                RefuelEntries = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/entry/refuel/{LicensePlate}");
             }
             catch (Exception)
             {
@@ -66,7 +66,7 @@ namespace KmLog.Server.Blazor.Pages
         {
             PagingParams.PageIndex = page;
             RefuelEntries = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>(
-                $"api/refuelentry/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
+                $"api/entry/refuel/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
         }
     }
 }

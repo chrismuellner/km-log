@@ -9,6 +9,10 @@ namespace KmLog.Server.Dto
 
         public double Cost { get; set; }
 
+        public long Distance { get; set; }
+
+        public long TotalDistance { get; set; }
+
         public string Notes { get; set; }
     }
 }

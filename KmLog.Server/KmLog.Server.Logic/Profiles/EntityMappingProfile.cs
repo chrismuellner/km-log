@@ -10,6 +10,8 @@ namespace KmLog.Server.Logic.Profiles
         {
             CreateMap<RefuelEntryDto, RefuelEntry>();
             CreateMap<RefuelEntryInfoDto, RefuelEntry>();
+            CreateMap<ServiceEntryDto, ServiceEntry>();
+            CreateMap<ServiceEntryInfoDto, ServiceEntry>();
             CreateMap<CarDto, Car>();
             CreateMap<CarInfoDto, Car>();
             CreateMap<UserDto, User>();

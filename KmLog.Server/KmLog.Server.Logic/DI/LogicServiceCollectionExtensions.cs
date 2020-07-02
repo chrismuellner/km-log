@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace KmLog.Server.Logic.DI
 {
@@ -9,7 +6,7 @@ namespace KmLog.Server.Logic.DI
     {
         public static IServiceCollection AddLogic(this IServiceCollection services)
         {
-            services.AddScoped<RefuelEntryLogic>();
+            services.AddScoped<EntryLogic>();
             services.AddScoped<CarLogic>();
             services.AddScoped<AuthenticationLogic>();
             services.AddScoped<UserLogic>();

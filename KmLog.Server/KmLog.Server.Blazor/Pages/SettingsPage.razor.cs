@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using KmLog.Server.Blazor.Validation.Models;
 using KmLog.Server.Dto;
@@ -36,7 +34,7 @@ namespace KmLog.Server.Blazor.Pages
             var authState = await AuthenticationStateTask;
             if (!authState.User.Identity.IsAuthenticated)
             {
-                NavigationManager.NavigateTo("api/authentication/signin?redirectUri=/settings", true);
+                NavigationManager.NavigateTo("api/authentication/signin", true);
             }
 
             try
