@@ -1,4 +1,4 @@
-﻿@inherits AddEntryBase
+﻿@inherits AddEntryBase<ServiceEntryModel>
 
 <div class="card w-100">
     <div class="card-header">
@@ -7,15 +7,15 @@
     <div class="card-body">
         @if (State.Cars != null && State.Cars.Any())
         {
-            <EditForm Model=@ServiceEntry OnValidSubmit=@FormSubmitted>
+            <EditForm Model=@Entry OnValidSubmit=@FormSubmitted>
                 <FluentValidationValidator ValidatorType=typeof(ServiceEntryValidator) />
 
                 @if (LicensePlate == null)
                 {
                     <div class="form-group">
                         <label for="formGroupCar">Car</label>
-                        <InputSelect ValueChanged="(string carId) => UpdateCarId(carId)" ValueExpression="() => ServiceEntry.CarIdAsString"
-                                        Value="ServiceEntry.CarIdAsString" class="form-control" id="formGroupCar">
+                        <InputSelect ValueChanged="(string carId) => UpdateCarId(carId)" ValueExpression="() => Entry.CarIdAsString"
+                                        Value="Entry.CarIdAsString" class="form-control" id="formGroupCar">
                             @foreach (var car in State.Cars)
                             {
                                 <option value="@car.Id.ToString()">@car.LicensePlate</option>
@@ -25,25 +25,25 @@
                 }
                 <div class="form-group">
                     <label for="formGroupDate">Date</label>
-                    <InputDate @bind-Value=ServiceEntry.Date ParsingErrorMessage="Must be a date"
+                    <InputDate @bind-Value=Entry.Date ParsingErrorMessage="Must be a date"
                                 class="form-control" id="formGroupDate" placeholder="Date" />
-                    <ValidationMessage For="() => ServiceEntry.Date" />
+                    <ValidationMessage For="() => Entry.Date" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupTotalDistance">Total Distance (km)</label>
-                    <InputNumber @bind-Value=ServiceEntry.TotalDistance ParsingErrorMessage="Must be a decimal value"
+                    <InputNumber @bind-Value=Entry.TotalDistance ParsingErrorMessage="Must be a decimal value"
                                     class="form-control" id="formGroupTotalDistance" placeholder="Total Distance" min="0" />
-                    <ValidationMessage For="() => ServiceEntry.TotalDistance" />
+                    <ValidationMessage For="() => Entry.TotalDistance" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupCost">Cost (€)</label>
-                    <InputNumber @bind-Value=ServiceEntry.Cost ParsingErrorMessage="Must be a decimal value"
+                    <InputNumber @bind-Value=Entry.Cost ParsingErrorMessage="Must be a decimal value"
                                     class="form-control" id="formGroupCost" placeholder="Cost" min="0" />
-                    <ValidationMessage For="() => ServiceEntry.Cost" />
+                    <ValidationMessage For="() => Entry.Cost" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupStatus">Service Type</label>
-                    <InputSelect @bind-Value=ServiceEntry.ServiceType class="form-control" id="formGroupStatus">
+                    <InputSelect @bind-Value=Entry.ServiceType class="form-control" id="formGroupStatus">
                         @foreach (var serviceType in Enum.GetValues(typeof(ServiceType)))
                         {
                             <option value="@serviceType">@serviceType.ToString()</option>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="form-group">
                     <label for="formGroupNotes">Notes</label>
-                    <InputTextArea @bind-Value=ServiceEntry.Notes
+                    <InputTextArea @bind-Value=Entry.Notes
                                     class="form-control" id="formGroupNotes" placeholder="Notes" />
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>

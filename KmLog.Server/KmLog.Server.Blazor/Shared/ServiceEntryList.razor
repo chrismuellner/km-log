@@ -1,0 +1,31 @@
+﻿@inherits EntryListBase<ServiceEntryInfoDto>
+
+@if (Entries != null && Entries.Count > 0)
+{
+    <div class="card w-100">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Cost</th>
+                        <th scope="col">Total Distance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var serviceEntry in Entries.Items)
+                    {
+                        <tr>
+                            <th scope="row">@serviceEntry.Date.ToString("dd.MM.yy")</th>
+                            <td>@serviceEntry.ServiceType.ToString()</td>
+                            <td>@serviceEntry.Cost.ToString("N2") €</td>
+                            <td>@serviceEntry.TotalDistance.ToString("N0") km</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <PaginatorComponent PagingParams="@PagingParams" PagingResult="@Entries" OnPagingChanged="@PagingChanged" />
+        </div>
+    </div>
+}

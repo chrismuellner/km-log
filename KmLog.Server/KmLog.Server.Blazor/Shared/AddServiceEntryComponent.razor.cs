@@ -7,18 +7,12 @@ using KmLog.Server.Dto;
 
 namespace KmLog.Server.Blazor.Shared
 {
-    public partial class AddServiceEntryComponent : AddEntryBase
+    public partial class AddServiceEntryComponent : AddEntryBase<ServiceEntryModel>
     {
-        protected override IEntryModel Entry { get; set; } = new ServiceEntryModel
+        protected override ServiceEntryModel Entry { get; set; } = new ServiceEntryModel
         {
             Date = DateTime.Today
         };
-
-        private ServiceEntryModel ServiceEntry
-        {
-            get => Entry as ServiceEntryModel;
-            set => Entry = value;
-        }
 
         private ServiceEntryInfoDto LatestServiceEntry { get; set; }
 
@@ -26,8 +20,8 @@ namespace KmLog.Server.Blazor.Shared
         {
             try
             {
-                await HttpClient.PutAsJsonAsync("api/entry/service", ServiceEntry);
-                ServiceEntry = new ServiceEntryModel
+                await HttpClient.PutAsJsonAsync("api/entry/service", Entry);
+                Entry = new ServiceEntryModel
                 {
                     Date = DateTime.Today
                 };
@@ -43,17 +37,17 @@ namespace KmLog.Server.Blazor.Shared
             try
             {
                 LatestServiceEntry = await HttpClient.GetFromJsonAsync<ServiceEntryInfoDto>($"api/entry/service/{ActiveCar.LicensePlate}/latest");
-                ServiceEntry.LatestTotalDistance = LatestServiceEntry.TotalDistance;
+                Entry.LatestTotalDistance = LatestServiceEntry.TotalDistance;
 
-                if (ServiceEntry.TotalDistance == 0)
+                if (Entry.TotalDistance == 0)
                 {
-                    ServiceEntry.TotalDistance = LatestServiceEntry.TotalDistance;
+                    Entry.TotalDistance = LatestServiceEntry.TotalDistance;
                 }
             }
             catch (Exception)
             {
                 Debug.WriteLine("No latest service entry exists for current car");
-                ServiceEntry.LatestTotalDistance = default;
+                Entry.LatestTotalDistance = default;
             }
         }
     }

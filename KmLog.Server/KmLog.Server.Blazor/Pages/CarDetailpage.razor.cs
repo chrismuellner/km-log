@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
@@ -27,10 +26,6 @@ namespace KmLog.Server.Blazor.Pages
 
         private CarStatisticDto CarStatistic { get; set; }
 
-        private PagingParameters PagingParams { get; } = new PagingParameters { PageIndex = 0, PageSize = 10 };
-
-        private PagingResult<RefuelEntryInfoDto> RefuelEntries { get; set; }
-
         protected override async Task OnInitializedAsync()
         {
             var authState = await AuthenticationStateTask;
@@ -51,22 +46,6 @@ namespace KmLog.Server.Blazor.Pages
                 CarStatistic = null;
                 Console.Error.WriteLine("Could not parse json for car statistic!");
             }
-
-            try
-            {
-                RefuelEntries = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>($"api/entry/refuel/{LicensePlate}");
-            }
-            catch (Exception)
-            {
-                Console.Error.WriteLine("Could not parse json for refuel entries!");
-            }
-        }
-
-        private async Task PagingChanged(int page)
-        {
-            PagingParams.PageIndex = page;
-            RefuelEntries = await HttpClient.GetFromJsonAsync<PagingResult<RefuelEntryInfoDto>>(
-                $"api/entry/refuel/{LicensePlate}?PageIndex={PagingParams.PageIndex}&PageSize={PagingParams.PageSize}");
         }
     }
 }

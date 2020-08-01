@@ -55,35 +55,11 @@
         <AddServiceEntryComponent LicensePlate="@LicensePlate" />
     </div>
 
-    @if (RefuelEntries != null && RefuelEntries.Count > 0)
-    {
-        <div class="row">
-            <div class="card w-100">
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Date</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Cost</th>
-                                <th scope="col">Distance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var refuelEntry in RefuelEntries.Items)
-                            {
-                                <tr>
-                                    <th scope="row">@refuelEntry.Date.ToString("dd.MM.yy")</th>
-                                    <td>@refuelEntry.Amount.ToString("N2") l</td>
-                                    <td>@refuelEntry.Cost.ToString("N2") €</td>
-                                    <td>@refuelEntry.Distance.ToString("N0") km</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                    <PaginatorComponent PagingParams="@PagingParams" PagingResult="@RefuelEntries" OnPagingChanged="@PagingChanged" />
-                </div>
-            </div>
-        </div>
-    }
+    <div class="row">
+        <RefuelEntryList LicensePlate="@LicensePlate" />
+    </div>
+
+    <div class="row">
+        <ServiceEntryList LicensePlate="@LicensePlate" />
+    </div>
 </div>

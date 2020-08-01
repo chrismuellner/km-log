@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Components;
 
 namespace KmLog.Server.Blazor.Shared
 {
-    public abstract class AddEntryBase : ComponentBase
+    public abstract class AddEntryBase<T> : ComponentBase
+        where T : IEntryModel
     {
         [Inject]
         protected HttpClient HttpClient { get; set; }
@@ -23,7 +24,7 @@ namespace KmLog.Server.Blazor.Shared
 
         protected CarInfoDto ActiveCar { get; set; }
 
-        protected abstract IEntryModel Entry { get; set; }
+        protected abstract T Entry { get; set; }
 
         protected override async Task OnParametersSetAsync()
         {

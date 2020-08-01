@@ -8,33 +8,27 @@ using KmLog.Server.Dto;
 
 namespace KmLog.Server.Blazor.Shared
 {
-    public partial class AddRefuelEntryComponent : AddEntryBase
+    public partial class AddRefuelEntryComponent : AddEntryBase<RefuelEntryModel>
     {
-        protected override IEntryModel Entry { get; set; } = new RefuelEntryModel
+        protected override RefuelEntryModel Entry { get; set; } = new RefuelEntryModel
         {
             Date = DateTime.Today
         };
-
-        private RefuelEntryModel RefuelEntry
-        {
-            get => Entry as RefuelEntryModel;
-            set => Entry = value;
-        }
 
         private RefuelEntryInfoDto LatestRefuelEntry { get; set; }
 
         protected override async Task FormSubmitted()
         {
-            if (RefuelEntry.Distance == 0)
+            if (Entry.Distance == 0)
             {
-                RefuelEntry.Distance = RefuelEntry.TotalDistance - RefuelEntry.LatestTotalDistance.Value;
+                Entry.Distance = Entry.TotalDistance - Entry.LatestTotalDistance.Value;
             }
-            if (RefuelEntry.TotalDistance == 0)
+            if (Entry.TotalDistance == 0)
             {
-                RefuelEntry.TotalDistance = RefuelEntry.LatestTotalDistance.Value + RefuelEntry.Distance;
+                Entry.TotalDistance = Entry.LatestTotalDistance.Value + Entry.Distance;
             }
 
-            await HttpClient.PutAsJsonAsync("api/entry/refuel", RefuelEntry);
+            await HttpClient.PutAsJsonAsync("api/entry/refuel", Entry);
         }
 
         protected override async Task LoadLatestEntry()
@@ -42,18 +36,18 @@ namespace KmLog.Server.Blazor.Shared
             try
             {
                 LatestRefuelEntry = await HttpClient.GetFromJsonAsync<RefuelEntryInfoDto>($"api/entry/refuel/{ActiveCar.LicensePlate}/latest");
-                RefuelEntry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
-                RefuelEntry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
+                Entry.LatestTotalDistance = LatestRefuelEntry.TotalDistance;
+                Entry.PricePerLiter = LatestRefuelEntry.PricePerLiter;
 
-                if (RefuelEntry.TotalDistance == 0)
+                if (Entry.TotalDistance == 0)
                 {
-                    RefuelEntry.TotalDistance = LatestRefuelEntry.TotalDistance;
+                    Entry.TotalDistance = LatestRefuelEntry.TotalDistance;
                 }
             }
             catch (Exception)
             {
                 Debug.WriteLine("No latest refuel entry exists for current car");
-                RefuelEntry.LatestTotalDistance = default;
+                Entry.LatestTotalDistance = default;
             }
         }
     }
