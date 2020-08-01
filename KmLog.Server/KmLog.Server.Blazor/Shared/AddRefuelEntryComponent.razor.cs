@@ -1,52 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using KmLog.Server.Blazor.Services;
 using KmLog.Server.Blazor.Validation.Models;
 using KmLog.Server.Dto;
-using Microsoft.AspNetCore.Components;
 
 namespace KmLog.Server.Blazor.Shared
 {
-    public partial class AddEntryComponent
+    public partial class AddRefuelEntryComponent : AddEntryBase
     {
-        [Inject]
-        private HttpClient HttpClient { get; set; }
-
-        [Inject]
-        private AppState State { get; set; }
-
-        [Parameter]
-        public string LicensePlate { get; set; }
-
-        private CarInfoDto ActiveCar { get; set; }
-
-        private RefuelEntryInfoDto LatestRefuelEntry { get; set; }
-
-        private RefuelEntryModel RefuelEntry { get; set; } = new RefuelEntryModel
+        protected override IEntryModel Entry { get; set; } = new RefuelEntryModel
         {
             Date = DateTime.Today
         };
 
-        protected override async Task OnParametersSetAsync()
+        private RefuelEntryModel RefuelEntry
         {
-            if (State.Cars == null || !State.Cars.Any())
-            {
-                return;
-            }
-
-            ActiveCar = LicensePlate == null
-                ? State.Cars.First()
-                : State.Cars.First(c => c.LicensePlate == LicensePlate);
-            RefuelEntry.CarId = ActiveCar.Id;
-
-            await LoadLatestRefuelEntry();
+            get => Entry as RefuelEntryModel;
+            set => Entry = value;
         }
 
-        private async Task FormSubmitted()
+        private RefuelEntryInfoDto LatestRefuelEntry { get; set; }
+
+        protected override async Task FormSubmitted()
         {
             if (RefuelEntry.Distance == 0)
             {
@@ -60,15 +37,7 @@ namespace KmLog.Server.Blazor.Shared
             await HttpClient.PutAsJsonAsync("api/entry/refuel", RefuelEntry);
         }
 
-        private async Task UpdateCarId(string carId)
-        {
-            RefuelEntry.CarIdAsString = carId;
-            ActiveCar = State.Cars.First(c => c.Id == RefuelEntry.CarId);
-
-            await LoadLatestRefuelEntry();
-        }
-
-        private async Task LoadLatestRefuelEntry()
+        protected override async Task LoadLatestEntry()
         {
             try
             {
@@ -83,7 +52,7 @@ namespace KmLog.Server.Blazor.Shared
             }
             catch (Exception)
             {
-                Console.WriteLine("No latest refuelentry exists for current car");
+                Debug.WriteLine("No latest refuel entry exists for current car");
                 RefuelEntry.LatestTotalDistance = default;
             }
         }

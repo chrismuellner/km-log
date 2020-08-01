@@ -61,7 +61,6 @@ namespace KmLog.Server.Logic
             try
             {
                 if (serviceEntry.CarId == Guid.Empty
-                 || serviceEntry.Distance == 0
                  || serviceEntry.TotalDistance == 0)
                 {
                     return null;

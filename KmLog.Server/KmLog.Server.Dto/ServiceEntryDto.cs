@@ -2,7 +2,7 @@
 
 namespace KmLog.Server.Dto
 {
-    public class ServiceEntryDto : EntryDto
+    public class ServiceEntryDto : ServiceEntryInfoDto
     {
         public Guid CarId { get; set; }
 

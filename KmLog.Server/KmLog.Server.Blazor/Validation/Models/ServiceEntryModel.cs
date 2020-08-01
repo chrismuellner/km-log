@@ -3,7 +3,7 @@ using KmLog.Server.Dto;
 
 namespace KmLog.Server.Blazor.Validation.Models
 {
-    public class RefuelEntryModel : RefuelEntryDto, IEntryModel
+    public class ServiceEntryModel : ServiceEntryDto, IEntryModel
     {
         public string CarIdAsString
         {

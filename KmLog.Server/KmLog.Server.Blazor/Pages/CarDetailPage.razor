@@ -48,7 +48,11 @@
     }
 
     <div class="row">
-        <AddEntryComponent LicensePlate="@LicensePlate" />
+        <AddRefuelEntryComponent LicensePlate="@LicensePlate" />
+    </div>
+
+    <div class="row">
+        <AddServiceEntryComponent LicensePlate="@LicensePlate" />
     </div>
 
     @if (RefuelEntries != null && RefuelEntries.Count > 0)

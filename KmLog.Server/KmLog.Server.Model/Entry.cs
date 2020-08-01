@@ -13,9 +13,6 @@ namespace KmLog.Server.Model
         public double Cost { get; set; }
 
         [Required]
-        public long Distance { get; set; }
-
-        [Required]
         public long TotalDistance { get; set; }
 
         public string Notes { get; set; }

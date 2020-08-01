@@ -4,14 +4,16 @@ using KmLog.Server.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KmLog.Server.EF.Migrations
 {
     [DbContext(typeof(KmLogContext))]
-    partial class KmLogContextModelSnapshot : ModelSnapshot
+    [Migration("20200801001950_MoveDistance")]
+    partial class MoveDistance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

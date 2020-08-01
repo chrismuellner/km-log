@@ -16,7 +16,7 @@ namespace KmLog.Server.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddSingleton(new HttpClient 
+            builder.Services.AddTransient(sp => new HttpClient 
             { 
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) 
             });
@@ -33,6 +33,7 @@ namespace KmLog.Server.Blazor
             builder.Services.AddScoped<ImportValidator>();
             builder.Services.AddScoped<JoinGroupValidator>();
             builder.Services.AddScoped<AddGroupValidator>();
+            builder.Services.AddScoped<ServiceEntryValidator>();
 
             await builder.Build().RunAsync();
         }
