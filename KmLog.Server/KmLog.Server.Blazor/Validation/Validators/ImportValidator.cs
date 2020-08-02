@@ -14,18 +14,29 @@ namespace KmLog.Server.Blazor.Validation.Validators
             RuleFor(i => i.CostColumn)
                 .Must(IsColumnUnique).WithMessage("Column has to be unique.")
                 .NotEmpty().WithMessage("Column must have value.");
-            RuleFor(i => i.AmountColumn)
-                .Must(IsColumnUnique).WithMessage("Column has to be unique.")
-                .NotEmpty().WithMessage("Column must have value.");
-            RuleFor(i => i.PricePerLiterColumn)
-                .Must(IsColumnUnique).WithMessage("Column has to be unique.")
-                .NotEmpty().WithMessage("Column must have value.");
-            RuleFor(i => i.TankStatusColumn)
-                .Must(IsColumnUnique).WithMessage("Column has to be unique.")
-                .NotEmpty().WithMessage("Column must have value.");
-            RuleFor(i => i.TotalDistanceColumn)
-                .Must(IsColumnUnique).WithMessage("Column has to be unique.")
-                .NotEmpty().WithMessage("Column must have value.");
+
+            When(i => i.EntryType == Domain.EntryType.Refuel, () =>
+            {
+                RuleFor(i => i.AmountColumn)
+                    .Must(IsColumnUnique).WithMessage("Column has to be unique.")
+                    .NotEmpty().WithMessage("Column must have value.");
+                RuleFor(i => i.PricePerLiterColumn)
+                    .Must(IsColumnUnique).WithMessage("Column has to be unique.")
+                    .NotEmpty().WithMessage("Column must have value.");
+                RuleFor(i => i.TankStatusColumn)
+                    .Must(IsColumnUnique).WithMessage("Column has to be unique.")
+                    .NotEmpty().WithMessage("Column must have value.");
+                RuleFor(i => i.TotalDistanceColumn)
+                    .Must(IsColumnUnique).WithMessage("Column has to be unique.")
+                    .NotEmpty().WithMessage("Column must have value.");
+            });
+
+            When(i => i.EntryType == Domain.EntryType.Service, () =>
+            {
+                RuleFor(i => i.ServiceTypeColumn)
+                    .Must(IsColumnUnique).WithMessage("Column has to be unique.")
+                    .NotEmpty().WithMessage("Column must have value.");
+            });
 
             RuleFor(i => i.LicensePlate)
                 .Matches("^[a-zA-Z]{1,2}-[a-zA-Z0-9]{4,6}$").WithMessage("Enter a valid License plate. (#[#]-####)")
@@ -37,7 +48,9 @@ namespace KmLog.Server.Blazor.Validation.Validators
             var properties = typeof(ImportModel).GetProperties();
             foreach (var property in properties)
             {
-                if (property.Name == context.PropertyName || property.Name == nameof(ImportModel.LicensePlate))
+                if (property.Name == context.PropertyName 
+                    || property.Name == nameof(ImportModel.LicensePlate)
+                    || property.Name == nameof(ImportModel.EntryType))
                 {
                     continue;
                 }

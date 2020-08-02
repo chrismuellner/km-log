@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using KmLog.Server.Logic;
 using KmLog.Server.WebApi.Extensions;
@@ -56,7 +57,7 @@ namespace KmLog.Server.WebApi.Controllers
         }
 
         [HttpPost("csv")]
-        public async Task<IActionResult> UploadCsv()
+        public async Task<IActionResult> UploadCsv([FromQuery] EntryType entryType)
         {
             var form = HttpContext.Request.Form;
             if (form.Files.Any())
@@ -68,7 +69,7 @@ namespace KmLog.Server.WebApi.Controllers
                 using var fileStream = file.OpenReadStream();
 
                 var email = User.GetEmail();
-                var refuelEntries = await _carLogic.ImportCsv(email, fileStream, formDict);
+                var refuelEntries = await _carLogic.ImportCsv(email, fileStream, formDict, entryType);
                 if (refuelEntries == null)
                 {
                     return NotFound();

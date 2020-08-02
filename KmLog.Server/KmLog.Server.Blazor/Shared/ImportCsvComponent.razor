@@ -3,8 +3,14 @@
         <div>
             Import existing file
         </div>
-        <div>
-            <InputFile OnChange="HandleSelection" />
+        <div class="row">
+            <select class="form-control col" @bind=EntryType>
+                @foreach (var entryType in Enum.GetValues(typeof(EntryType)))
+                {
+                    <option value="@entryType">@entryType</option>
+                }
+            </select>
+            <InputFile OnChange="HandleSelection" class="col" />
         </div>
     </div>
     @if (Columns.Any())
@@ -22,9 +28,9 @@
                                 <InputSelect @bind-Value=Model.DateColumn class="form-control" id="formGroupDate">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                    {
+                                        {
                                         <option value="@column">@column</option>
-                                    }
+                                        }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.DateColumn" />
                             </div>
@@ -43,9 +49,9 @@
                                 <InputSelect @bind-Value=Model.TotalDistanceColumn class="form-control" id="formGroupTotalDistance">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                    {
+                                        {
                                         <option value="@column">@column</option>
-                                    }
+                                        }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.TotalDistanceColumn" />
                             </div>
@@ -60,34 +66,13 @@
                         </div>
                         <div class="row">
                             <div class="form-group col">
-                                <label for="formGroupAmount">Amount Tanked Column</label>
-                                <InputSelect @bind-Value=Model.AmountColumn class="form-control" id="formGroupAmount">
-                                    <option value="" selected>--</option>
-                                    @foreach (var column in Columns.Keys)
-                                    {
-                                        <option value="@column">@column</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="() => Model.AmountColumn" />
-                            </div>
-                            <div class="col d-flex align-items-center">
-                                <samp>
-                                    @if (Model.AmountColumn != null && Columns.TryGetValue(Model.AmountColumn, out var amountValue))
-                                    {
-                                        @amountValue
-                                    }
-                                </samp>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group col">
                                 <label for="formGroupCost">Cost Column</label>
                                 <InputSelect @bind-Value=Model.CostColumn class="form-control" id="formGroupCost">
                                     <option value="" selected>--</option>
                                     @foreach (var column in Columns.Keys)
-                                    {
+                                        {
                                         <option value="@column">@column</option>
-                                    }
+                                        }
                                 </InputSelect>
                                 <ValidationMessage For="() => Model.CostColumn" />
                             </div>
@@ -100,48 +85,99 @@
                                 </samp>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group col">
-                                <label for="formGroupPricePerLiter">Price per Liter Column</label>
-                                <InputSelect @bind-Value=Model.PricePerLiterColumn class="form-control" id="formGroupPricePerLiter">
-                                    <option value="" selected>--</option>
-                                    @foreach (var column in Columns.Keys)
-                                    {
-                                        <option value="@column">@column</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="() => Model.PricePerLiterColumn" />
-                            </div>
-                            <div class="col d-flex align-items-center">
-                                <samp>
-                                    @if (Model.PricePerLiterColumn != null && Columns.TryGetValue(Model.PricePerLiterColumn, out var pricePerLiterValue))
-                                    {
-                                        @pricePerLiterValue
-                                    }
-                                </samp>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group col">
-                                <label for="formGroupTankStatus">Tank Status Column</label>
-                                <InputSelect @bind-Value=Model.TankStatusColumn class="form-control" id="formGroupTankStatus">
-                                    <option value="" selected>--</option>
-                                    @foreach (var column in Columns.Keys)
-                                    {
-                                        <option value="@column">@column</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="() => Model.TankStatusColumn" />
-                            </div>
-                            <div class="col d-flex align-items-center">
-                                <samp>
-                                    @if (Model.TankStatusColumn != null && Columns.TryGetValue(Model.TankStatusColumn, out var tankStatusValue))
-                                    {
-                                        @tankStatusValue
-                                    }
-                                </samp>
-                            </div>
-                        </div>
+
+                        @switch (EntryType)
+                        {
+                            case EntryType.Refuel:
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="formGroupAmount">Amount Tanked Column</label>
+                                        <InputSelect @bind-Value=Model.AmountColumn class="form-control" id="formGroupAmount">
+                                            <option value="" selected>--</option>
+                                            @foreach (var column in Columns.Keys)
+                                                        {
+                                                <option value="@column">@column</option>
+                                                        }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => Model.AmountColumn" />
+                                    </div>
+                                    <div class="col d-flex align-items-center">
+                                        <samp>
+                                            @if (Model.AmountColumn != null && Columns.TryGetValue(Model.AmountColumn, out var amountValue))
+                                            {
+                                                @amountValue
+                                            }
+                                        </samp>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="formGroupPricePerLiter">Price per Liter Column</label>
+                                        <InputSelect @bind-Value=Model.PricePerLiterColumn class="form-control" id="formGroupPricePerLiter">
+                                            <option value="" selected>--</option>
+                                            @foreach (var column in Columns.Keys)
+                                                        {
+                                                <option value="@column">@column</option>
+                                                        }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => Model.PricePerLiterColumn" />
+                                    </div>
+                                    <div class="col d-flex align-items-center">
+                                        <samp>
+                                            @if (Model.PricePerLiterColumn != null && Columns.TryGetValue(Model.PricePerLiterColumn, out var pricePerLiterValue))
+                                            {
+                                                @pricePerLiterValue
+                                            }
+                                        </samp>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="formGroupTankStatus">Tank Status Column</label>
+                                        <InputSelect @bind-Value=Model.TankStatusColumn class="form-control" id="formGroupTankStatus">
+                                            <option value="" selected>--</option>
+                                            @foreach (var column in Columns.Keys)
+                                                        {
+                                                <option value="@column">@column</option>
+                                                        }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => Model.TankStatusColumn" />
+                                    </div>
+                                    <div class="col d-flex align-items-center">
+                                        <samp>
+                                            @if (Model.TankStatusColumn != null && Columns.TryGetValue(Model.TankStatusColumn, out var tankStatusValue))
+                                            {
+                                                @tankStatusValue
+                                            }
+                                        </samp>
+                                    </div>
+                                </div>
+                                break;
+
+                            case EntryType.Service:
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="formGroupServiceType">Service Type Column</label>
+                                        <InputSelect @bind-Value=Model.ServiceTypeColumn class="form-control" id="formGroupServiceType">
+                                            <option value="" selected>--</option>
+                                            @foreach (var column in Columns.Keys)
+                                                        {
+                                                <option value="@column">@column</option>
+                                                        }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => Model.ServiceTypeColumn" />
+                                    </div>
+                                    <div class="col d-flex align-items-center">
+                                        <samp>
+                                            @if (Model.ServiceTypeColumn != null && Columns.TryGetValue(Model.ServiceTypeColumn, out var serviceTypeValue))
+                                            {
+                                                @serviceTypeValue
+                                            }
+                                        </samp>
+                                    </div>
+                                </div>
+                                break;
+                        }
                     </div>
                 </li>
                 <li class="list-group-item">

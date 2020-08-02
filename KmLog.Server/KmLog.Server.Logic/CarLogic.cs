@@ -102,7 +102,7 @@ namespace KmLog.Server.Logic
             }
         }
 
-        public async Task<IEnumerable<RefuelEntryDto>> ImportCsv(string email, Stream fileStream, IDictionary<string, string> formDict)
+        public async Task<IEnumerable<EntryDto>> ImportCsv(string email, Stream fileStream, IDictionary<string, string> formDict, EntryType entryType)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace KmLog.Server.Logic
                     await _unitOfWork.CarRepository.Add(car);
                 }
 
-                var refuelEntries = new List<RefuelEntryDto>();
+                var entries = new List<EntryDto>();
 
                 // read csv
                 using var reader = new StreamReader(fileStream);
@@ -144,56 +144,91 @@ namespace KmLog.Server.Logic
                 csv.ReadHeader();
                 while (csv.Read())
                 {
-                    var refuelEntry = new RefuelEntryDto
+                    EntryDto entry = entryType switch
                     {
-                        Date = DateTime.ParseExact( // todo: datetime format as parameter
-                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Date)]), "yyyy_MM_dd", CultureInfo.InvariantCulture, DateTimeStyles.None),
-                        Amount = double.Parse(
-                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Amount)])),
-                        Cost = double.Parse(
-                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.Cost)])),
-                        TotalDistance = long.Parse(
-                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.TotalDistance)]), NumberStyles.Any),
-                        PricePerLiter = double.Parse(
-                            csv.GetField<string>(indexes[nameof(RefuelEntryDto.PricePerLiter)])),
-                        TankStatus = csv.GetField<string>(indexes[nameof(RefuelEntryDto.TankStatus)]) switch
-                        {
-                            "tank full" => TankStatus.Full,
-                            "tank partial" => TankStatus.Partial,
-                            _ => throw new InvalidOperationException("Invalid tank status!")
-                        },
-                        CarId = car.Id
+                        EntryType.Refuel => new RefuelEntryDto(),
+                        EntryType.Service => new ServiceEntryDto(),
+                        _ => throw new ArgumentException()
                     };
 
-                    refuelEntries.Add(refuelEntry);
-                }
+                    entry.Date = DateTime.ParseExact( // todo: datetime format as parameter
+                            csv.GetField<string>(indexes[nameof(EntryDto.Date)]), "yyyy_MM_dd", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                    entry.Cost = double.Parse(
+                            csv.GetField<string>(indexes[nameof(EntryDto.Cost)]));
+                    entry.TotalDistance = long.Parse(
+                            csv.GetField<string>(indexes[nameof(EntryDto.TotalDistance)]), NumberStyles.Any);
 
-                // calculate distances
-                long previousTotalDistance = 0;
-                var orderedEntries = refuelEntries
-                    .OrderByDescending(e => e.Date)
-                    .ToArray();
-                for (int i = orderedEntries.Count() - 1; i >= 0; i--)
-                {
-                    var refuelEntry = orderedEntries[i];
-
-                    long distance = 0;
-                    if (previousTotalDistance > 0)
+                    switch (entryType)
                     {
-                        distance = refuelEntry.TotalDistance - previousTotalDistance;
-                    }
-                    previousTotalDistance = refuelEntry.TotalDistance;
+                        case EntryType.Refuel:
+                            var refuelEntry = entry as RefuelEntryDto;
+                            refuelEntry.Amount = double.Parse(
+                                csv.GetField<string>(indexes[nameof(RefuelEntryDto.Amount)]));
+                            refuelEntry.PricePerLiter = double.Parse(
+                                csv.GetField<string>(indexes[nameof(RefuelEntryDto.PricePerLiter)]));
+                            refuelEntry.TankStatus = csv.GetField<string>(indexes[nameof(RefuelEntryDto.TankStatus)]) switch
+                                {
+                                    "tank full" => TankStatus.Full,
+                                    "tank partial" => TankStatus.Partial,
+                                    _ => throw new InvalidOperationException("Invalid tank status")
+                                };
+                            refuelEntry.CarId = car.Id;
+                            break;
 
-                    refuelEntry.Distance = distance > 0 ? distance : 0; // todo: mark as invalid
+                        case EntryType.Service:
+                            var serviceEntry = entry as ServiceEntryDto;
+                            serviceEntry.ServiceType = csv.GetField<string>(indexes[nameof(ServiceEntryDto.ServiceType)]) switch
+                                {
+                                    "Autowäsche" => ServiceType.CarWash,
+                                    "Ölwechsel" => ServiceType.OilChange,
+                                    "Inspektion" => ServiceType.Inspection,
+                                    _ => ServiceType.Repairs
+                                };
+                            serviceEntry.CarId = car.Id;
+                            break;
+                    }
+                    entries.Add(entry);
                 }
 
-                var entries = _mapper.Map<IEnumerable<RefuelEntry>>(refuelEntries);
-                await _unitOfWork.RefuelEntryRepository.Add(entries);
+                switch (entryType)
+                {
+                    case EntryType.Refuel:
+                        // calculate distances
+                        long previousTotalDistance = 0;
+                        var orderedEntries = entries
+                            .OrderByDescending(e => e.Date)
+                            .Cast<RefuelEntryDto>()
+                            .ToArray();
+                        for (int i = orderedEntries.Count() - 1; i >= 0; i--)
+                        {
+                            var refuelEntry = orderedEntries[i];
+
+                            long distance = 0;
+                            if (previousTotalDistance > 0)
+                            {
+                                distance = refuelEntry.TotalDistance - previousTotalDistance;
+                            }
+                            previousTotalDistance = refuelEntry.TotalDistance;
+
+                            refuelEntry.Distance = distance > 0 ? distance : 0; // todo: mark as invalid
+                        }
+
+                        var refuelEntries = _mapper.Map<IEnumerable<RefuelEntry>>(entries);
+                        await _unitOfWork.RefuelEntryRepository.Add(refuelEntries);
+
+                        break;
+
+                    case EntryType.Service:
+                        var serviceEntries = _mapper.Map<IEnumerable<ServiceEntry>>(entries);
+                        await _unitOfWork.ServiceEntryRepository.Add(serviceEntries);
+
+                        break;
+                }
 
                 await _unitOfWork.Save();
                 transaction.Commit();
 
-                return refuelEntries;
+                return entries;
             }
             catch (Exception ex)
             {

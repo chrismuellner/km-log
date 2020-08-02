@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BlazorInputFile;
 using KmLog.Server.Blazor.Services;
 using KmLog.Server.Blazor.Validation.Models;
+using KmLog.Server.Domain;
 using KmLog.Server.Dto;
 using Microsoft.AspNetCore.Components;
 
@@ -20,9 +21,21 @@ namespace KmLog.Server.Blazor.Shared
         [Inject]
         private AppState State { get; set; }
 
+        private EntryType EntryType
+        {
+            get => _entryType;
+            set
+            {
+                _entryType = value;
+                Model.EntryType = value;
+            }
+        }
+
         private MemoryStream _file;
+        private EntryType _entryType;
 
         private IDictionary<string, string> Columns { get; set; } = new Dictionary<string, string>();
+
         private IDictionary<string, string> Indexes { get; set; } = new Dictionary<string, string>();
 
         private ImportModel Model { get; set; } = new ImportModel();
@@ -35,6 +48,8 @@ namespace KmLog.Server.Blazor.Shared
                 var file = files.FirstOrDefault();
                 if (file != null)
                 {
+                    await Reset();
+
                     _file = new MemoryStream();
                     await file.Data.CopyToAsync(_file);
 
@@ -54,13 +69,15 @@ namespace KmLog.Server.Blazor.Shared
 
                     Model = new ImportModel
                     {
-                        LicensePlate = file.Name.ToLower()
+                        LicensePlate = Path.GetFileNameWithoutExtension(file.Name.ToLower()),
+                        EntryType = EntryType
                     };
                 }
             }
             catch (Exception)
             {
                 Console.Error.WriteLine("Error selecting file!");
+                throw;
             }
         }
 
@@ -77,27 +94,50 @@ namespace KmLog.Server.Blazor.Shared
                 var content = new MultipartFormDataContent
                 {
                     { new ByteArrayContent(_file.GetBuffer()), "upload", "filename" },
-                    { new StringContent(Indexes[Model.DateColumn]), nameof(RefuelEntryDto.Date)},
-                    { new StringContent(Indexes[Model.TotalDistanceColumn]), nameof(RefuelEntryDto.TotalDistance) },
-                    { new StringContent(Indexes[Model.AmountColumn]), nameof(RefuelEntryDto.Amount) },
-                    { new StringContent(Indexes[Model.CostColumn]), nameof(RefuelEntryDto.Cost) },
-                    { new StringContent(Indexes[Model.PricePerLiterColumn]), nameof(RefuelEntryDto.PricePerLiter) },
-                    { new StringContent(Indexes[Model.TankStatusColumn]), nameof(RefuelEntryDto.TankStatus) },
+                    { new StringContent(Indexes[Model.DateColumn]), nameof(EntryDto.Date)},
+                    { new StringContent(Indexes[Model.TotalDistanceColumn]), nameof(EntryDto.TotalDistance) },
+                    { new StringContent(Indexes[Model.CostColumn]), nameof(EntryDto.Cost) },
                     { new StringContent(Model.LicensePlate), nameof(CarDto.LicensePlate) }
                 };
-                await HttpClient.PostAsync("api/car/csv", content);
 
-                Model = new ImportModel();
-                Columns.Clear();
-                await _file.DisposeAsync();
-                _file = null;
+                switch (EntryType)
+                {
+                    case EntryType.Refuel:
+                        content.Add(new StringContent(Indexes[Model.AmountColumn]), nameof(RefuelEntryDto.Amount));
+                        content.Add(new StringContent(Indexes[Model.PricePerLiterColumn]), nameof(RefuelEntryDto.PricePerLiter));
+                        content.Add(new StringContent(Indexes[Model.TankStatusColumn]), nameof(RefuelEntryDto.TankStatus));
+                        break;
 
+                    case EntryType.Service:
+                        content.Add(new StringContent(Indexes[Model.ServiceTypeColumn]), nameof(ServiceEntryDto.ServiceType));
+                        break;
+                }
+                await HttpClient.PostAsync($"api/car/csv?entryType={EntryType}", content);
+
+                await Reset();
                 await State.UpdateCars();
             }
             catch (Exception)
             {
                 Console.Error.WriteLine("Error importing file!");
             }
+        }
+
+        private async Task Reset()
+        {
+            if (_file == null)
+            {
+                return;
+            }
+
+            Model = new ImportModel
+            {
+                EntryType = EntryType
+            };
+            Columns.Clear();
+            Indexes.Clear();
+            await _file.DisposeAsync();
+            _file = null;
         }
     }
 }
