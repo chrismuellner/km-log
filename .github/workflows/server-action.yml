@@ -2,7 +2,15 @@ name: Server CI
 
 on: 
   push:
-    paths: 
+    branches:
+      - main
+    paths:
+      - KmLog.Server/**
+      - .github/workflows/server-action.yml
+  pull_request:
+    branches:
+      - main
+    paths:
       - KmLog.Server/**
       - .github/workflows/server-action.yml
 
@@ -14,24 +22,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup dotnet
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.300
+      uses: actions/setup-dotnet@v1 # use dotnet version from global.json
     - name: Build with dotnet
       working-directory: KmLog.Server
       shell: bash
       run: dotnet build -c Release
-
-  build-package:
-    name: Build and Publish Github Package via Dockerfile
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v2 # Checking out the repo
-      - name: Build and Publish latest Docker image
-        uses: VaultVulp/gp-docker-action@1.1.6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          image-name: kmlogserver
-          dockerfile: KmLog.Server/KmLog.Server.WebApi/Dockerfile
-          build-context: KmLog.Server
