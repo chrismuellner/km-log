@@ -8,7 +8,7 @@
         @if (State.Cars != null && State.Cars.Any())
         {
             <EditForm Model=@Entry OnValidSubmit=@FormSubmitted>
-                <FluentValidationValidator ValidatorType=typeof(RefuelEntryValidator) />
+                <FluentValidationValidator />
 
                 @if (LicensePlate == null)
                 {
