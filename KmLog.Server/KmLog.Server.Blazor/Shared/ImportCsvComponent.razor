@@ -16,7 +16,7 @@
     @if (Columns.Any())
     {
         <EditForm Model=@Model OnValidSubmit=@FormSubmitted>
-            <FluentValidationValidator ValidatorType=typeof(ImportValidator) />
+            <FluentValidationValidator />
 
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">

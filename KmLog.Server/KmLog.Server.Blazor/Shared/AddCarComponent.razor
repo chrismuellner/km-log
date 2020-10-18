@@ -4,7 +4,7 @@
     </div>
     <div class="card-body">
         <EditForm Model=@Car OnValidSubmit=@FormSubmitted>
-            <FluentValidationValidator ValidatorType=typeof(CarValidator) />
+            <FluentValidationValidator />
 
             <div class="form-group">
                 <label for="formGroupLicense">License Plate</label>
