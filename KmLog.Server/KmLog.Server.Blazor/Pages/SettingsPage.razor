@@ -10,7 +10,7 @@
                 @if (Groups != null && Groups.Any())
                 {
                     <EditForm Model=@JoinGroup OnValidSubmit=@JoinFormSubmitted>
-                        <FluentValidationValidator ValidatorType=typeof(JoinGroupValidator) />
+                        <FluentValidationValidator />
 
                         <div class="form-group">
                             <label for="formGroupName">Group</label>
@@ -41,7 +41,7 @@
             </div>
             <div class="card-body">
                 <EditForm Model=@AddGroup OnValidSubmit=@AddFormSubmitted>
-                    <FluentValidationValidator ValidatorType=typeof(AddGroupValidator) />
+                    <FluentValidationValidator />
 
                     <div class="form-group">
                         <label for="formGroupName">Name</label>
