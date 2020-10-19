@@ -6,6 +6,9 @@ using KmLog.Server.Blazor.Validation.Validators;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 
 namespace KmLog.Server.Blazor
 {
@@ -16,9 +19,9 @@ namespace KmLog.Server.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddTransient(sp => new HttpClient 
-            { 
-                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) 
+            builder.Services.AddTransient(sp => new HttpClient
+            {
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
             builder.Services.AddApiAuthorization();
@@ -35,7 +38,22 @@ namespace KmLog.Server.Blazor
             builder.Services.AddScoped<AddGroupValidator>();
             builder.Services.AddScoped<ServiceEntryValidator>();
 
-            await builder.Build().RunAsync();
+            // blazorize
+            builder.Services
+                .AddBlazorise(options =>
+                {
+                    options.ChangeTextOnKeyPress = true;
+                })
+                .AddBootstrapProviders()
+                .AddFontAwesomeIcons();
+
+            var host = builder.Build();
+
+            host.Services
+                .UseBootstrapProviders()
+                .UseFontAwesomeIcons();
+
+            await host.RunAsync();
         }
     }
 }
