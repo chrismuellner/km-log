@@ -7,43 +7,57 @@
     @if (CarStatistic != null)
     {
         <div class="row">
-            <div class="card w-100">
-                <div class="card-header">
-                    Statistics
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <div class="row">
-                            <h5 class="col">Distance</h5>
-                            <div class="col">
-                                <div class="row justify-content-around">
-                                    <div>Total:</div>
-                                    <div>@CarStatistic.TotalDistance.ToString("N0") km</div>
-                                </div>
-                                <div class="row justify-content-around">
-                                    <div>Average:</div>
-                                    <div>@CarStatistic.AvgDistance.ToString("N0") km</div>
+            <Collapse class="w-100" Visible="@collapseVisible">
+                <CollapseHeader class="no-gap">
+                    <Heading class="no-gap">
+                        <Button class="card-button no-focus w-100 text-left" Clicked="(() => collapseVisible = !collapseVisible)">
+                            @if (collapseVisible)
+                            {
+                                <Icon Name="IconName.AngleUp" />
+                            }
+                            else
+                            {
+                                <Icon Name="IconName.AngleDown" />
+                            }
+                            &ensp;Statistics
+                        </Button>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="row">
+                                <h5 class="col">Distance</h5>
+                                <div class="col">
+                                    <div class="row justify-content-around">
+                                        <div>Total:</div>
+                                        <div>@CarStatistic.TotalDistance.ToString("N0") km</div>
+                                    </div>
+                                    <div class="row justify-content-around">
+                                        <div>Average:</div>
+                                        <div>@CarStatistic.AvgDistance.ToString("N0") km</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
-                    <li class="list-group-item">
-                        <div class="row">
-                            <h5 class="col">Cost</h5>
-                            <div class="col">
-                                <div class="row justify-content-around">
-                                    <div>Total:</div>
-                                    <div>@CarStatistic.TotalCost.ToString("N2") €</div>
-                                </div>
-                                <div class="row justify-content-around">
-                                    <div>Average:</div>
-                                    <div>@CarStatistic.AvgCost.ToString("N2") €</div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <h5 class="col">Cost</h5>
+                                <div class="col">
+                                    <div class="row justify-content-around">
+                                        <div>Total:</div>
+                                        <div>@CarStatistic.TotalCost.ToString("N2") €</div>
+                                    </div>
+                                    <div class="row justify-content-around">
+                                        <div>Average:</div>
+                                        <div>@CarStatistic.AvgCost.ToString("N2") €</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+                        </li>
+                    </ul>
+                </CollapseBody>
+            </Collapse>
         </div>
     }
 

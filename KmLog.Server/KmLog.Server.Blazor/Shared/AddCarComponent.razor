@@ -1,8 +1,20 @@
-﻿<div class="card w-100">
-    <div class="card-header">
-        Add new Car
-    </div>
-    <div class="card-body">
+﻿<Collapse class="w-100" Visible="@collapseVisible">
+    <CollapseHeader class="no-gap">
+        <Heading class="no-gap">
+            <Button class="card-button no-focus w-100 text-left" Clicked="(() => collapseVisible = !collapseVisible)">
+                @if (collapseVisible)
+                {
+                    <Icon Name="IconName.AngleUp" />
+                }
+                else
+                {
+                    <Icon Name="IconName.AngleDown" />
+                }
+                &ensp;Add new Car
+            </Button>
+        </Heading>
+    </CollapseHeader>
+    <CollapseBody>
         <EditForm Model=@Car OnValidSubmit=@FormSubmitted>
             <FluentValidationValidator />
 
@@ -33,5 +45,5 @@
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
         </EditForm>
-    </div>
-</div>
+    </CollapseBody>
+</Collapse>

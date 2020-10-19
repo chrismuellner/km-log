@@ -1,10 +1,22 @@
 ﻿@inherits AddEntryBase<RefuelEntryModel>
 
-<div class="card w-100">
-    <div class="card-header">
-        Add new Refuel Entry
-    </div>
-    <div class="card-body">
+<Collapse class="w-100" Visible="@collapseVisible">
+    <CollapseHeader class="no-gap">
+        <Heading class="no-gap">
+            <Button class="card-button no-focus w-100 text-left" Clicked="(() => collapseVisible = !collapseVisible)">
+                @if (collapseVisible)
+                {
+                    <Icon Name="IconName.AngleUp" />
+                }
+                else
+                {
+                    <Icon Name="IconName.AngleDown" />
+                }
+                &ensp;Add new Refuel Entry
+            </Button>
+        </Heading>
+    </CollapseHeader>
+    <CollapseBody>
         @if (State.Cars != null && State.Cars.Any())
         {
             <EditForm Model=@Entry OnValidSubmit=@FormSubmitted>
@@ -79,5 +91,5 @@
         {
             <p>No Cars yet!</p>
         }
-    </div>
-</div>
+    </CollapseBody>
+</Collapse>

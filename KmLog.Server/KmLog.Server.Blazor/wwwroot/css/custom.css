@@ -1,0 +1,15 @@
+﻿.no-gap {
+    margin: 0;
+    padding: 0;
+}
+
+.card-button {
+    border-radius: 0;
+    padding: 12px;
+    padding-left: 18px;
+}
+
+button.no-focus:focus {
+    outline: none;
+    box-shadow: none;
+}

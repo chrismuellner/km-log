@@ -12,6 +12,8 @@ namespace KmLog.Server.Blazor.Pages
     [Authorize]
     public partial class CarDetailPage
     {
+        private bool collapseVisible = true;
+
         [Inject]
         private HttpClient HttpClient { get; set; }
 

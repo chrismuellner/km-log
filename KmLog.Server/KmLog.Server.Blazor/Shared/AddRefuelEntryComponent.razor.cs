@@ -10,6 +10,8 @@ namespace KmLog.Server.Blazor.Shared
 {
     public partial class AddRefuelEntryComponent : AddEntryBase<RefuelEntryModel>
     {
+        private bool collapseVisible = false;
+
         protected override RefuelEntryModel Entry { get; set; } = new RefuelEntryModel
         {
             Date = DateTime.Today
