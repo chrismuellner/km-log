@@ -10,9 +10,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - KmLog.Server/**
-      - .github/workflows/server-action.yml
 
 jobs:
   build:
