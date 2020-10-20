@@ -6,19 +6,15 @@
 
 [Authentication with Microsoft Account](https://docs.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standalone-with-microsoft-accounts?view=aspnetcore-3.1)
 
-1. Register a AAD app in the Azure Active Directory > App registrations area of the [Azure portal](https://portal.azure.com)
-2. Provide a Name for the app (for example, Blazor Standalone AAD Microsoft Accounts).
-3. In Supported account types, select Accounts in any organizational directory.
+1. Register a AAD app in the Azure Active Directory > App registrations area of the [Azure portal](https://portal.azure.com).
+2. Provide a Name for the app (for example, `kmlog-<username>`).
+3. In Supported account types, select `Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)`.
 4. Leave the Redirect URI drop down set to Web and provide the following redirect URI:
     - Dev: `http://localhost/signin-microsoft`
     - Other: `https://<DOMAIN>/signin-microsoft`
-5. Clear the Permissions > Grant admin consent to openid and offline_access permissions check box.
-6. Select Register.
-
-The next steps are in the registered app.
-
-1. Check `Application (client) ID` in `Overview`.
-2. Add Client Secret in `Certificates & Secrets`
+6. Select Register. (the following steps are in the newly registered app)
+7. Check `Application (client) ID` in `Overview`.
+2. Add Client Secret in `Certificates & Secrets`.
 3. Store `Client Id` and `Client Secret` in `appsettings.json` or `secrets.json` ([app secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1&tabs=windows)) of `KmLog.Server.WebApi` in the following format:
 
 ```json
@@ -32,9 +28,18 @@ The next steps are in the registered app.
 
 ## Development
 
-`docker-compose` for mssql database in `docker-compose.database`
+Use the `docker-compose` in `KmLog.Server\docker-compose.database` as mssql database.
 
 ```sh
 docker-compose up
 ```
-Manually add email for Microsoft account to database, or add via command line arguments (`"valid@email.com,..."`).
+
+Add emails of authorized Microsoft account(s):
+- Manually insert into database
+```sql
+insert into [User]
+  (Id, Email, Role)
+values
+  (newid(), 'valid@email.com', 0)
+```
+- Add comma-separated list via command line arguments: (`"valid@email.com,..."`)
