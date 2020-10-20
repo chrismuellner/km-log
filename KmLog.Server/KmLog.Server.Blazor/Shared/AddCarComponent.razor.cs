@@ -10,6 +10,8 @@ namespace KmLog.Server.Blazor.Shared
 {
     public partial class AddCarComponent
     {
+        private bool collapseVisible = false;
+
         [Inject]
         private HttpClient HttpClient { get; set; }
 

@@ -1,10 +1,22 @@
 ﻿@inherits AddEntryBase<ServiceEntryModel>
 
-<div class="card w-100">
-    <div class="card-header">
-        Add new Service Entry
-    </div>
-    <div class="card-body">
+<Collapse class="w-100" Visible="@collapseVisible">
+    <CollapseHeader class="no-gap">
+        <Heading class="no-gap">
+            <Button class="card-button no-focus w-100 text-left" Clicked="(() => collapseVisible = !collapseVisible)">
+                @if (collapseVisible)
+                {
+                    <Icon Name="IconName.AngleUp" />
+                }
+                else
+                {
+                    <Icon Name="IconName.AngleDown" />
+                }
+                &ensp;Add new Service Entry
+            </Button>
+        </Heading>
+    </CollapseHeader>
+    <CollapseBody>
         @if (State.Cars != null && State.Cars.Any())
         {
             <EditForm Model=@Entry OnValidSubmit=@FormSubmitted>
@@ -15,7 +27,7 @@
                     <div class="form-group">
                         <label for="formGroupServiceCar">Car</label>
                         <InputSelect ValueChanged="(string carId) => UpdateCarId(carId)" ValueExpression="() => Entry.CarIdAsString"
-                                        Value="Entry.CarIdAsString" class="form-control" id="formGroupServiceCar">
+                                     Value="Entry.CarIdAsString" class="form-control" id="formGroupServiceCar">
                             @foreach (var car in State.Cars)
                             {
                                 <option value="@car.Id.ToString()">@car.LicensePlate</option>
@@ -26,34 +38,34 @@
                 <div class="form-group">
                     <label for="formGroupServiceDate">Date</label>
                     <InputDate @bind-Value=Entry.Date ParsingErrorMessage="Must be a date"
-                                class="form-control" id="formGroupServiceDate" placeholder="Date" />
+                               class="form-control" id="formGroupServiceDate" placeholder="Date" />
                     <ValidationMessage For="() => Entry.Date" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupServiceTotalDistance">Total Distance (km)</label>
                     <InputNumber @bind-Value=Entry.TotalDistance ParsingErrorMessage="Must be a decimal value"
-                                    class="form-control" id="formGroupServiceTotalDistance" placeholder="Total Distance" min="0" />
+                                 class="form-control" id="formGroupServiceTotalDistance" placeholder="Total Distance" min="0" />
                     <ValidationMessage For="() => Entry.TotalDistance" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupServiceCost">Cost (€)</label>
                     <InputNumber @bind-Value=Entry.Cost ParsingErrorMessage="Must be a decimal value"
-                                    class="form-control" id="formGroupServiceCost" placeholder="Cost" min="0" />
+                                 class="form-control" id="formGroupServiceCost" placeholder="Cost" min="0" />
                     <ValidationMessage For="() => Entry.Cost" />
                 </div>
                 <div class="form-group">
                     <label for="formGroupServiceStatus">Service Type</label>
                     <InputSelect @bind-Value=Entry.ServiceType class="form-control" id="formGroupServiceStatus">
                         @foreach (var serviceType in Enum.GetValues(typeof(ServiceType)))
-                        {
+                            {
                             <option value="@serviceType">@serviceType.ToString()</option>
-                        }
+                            }
                     </InputSelect>
                 </div>
                 <div class="form-group">
                     <label for="formGroupServiceNotes">Notes</label>
                     <InputTextArea @bind-Value=Entry.Notes
-                                    class="form-control" id="formGroupServiceNotes" placeholder="Notes" />
+                                   class="form-control" id="formGroupServiceNotes" placeholder="Notes" />
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>
             </EditForm>
@@ -62,5 +74,5 @@
         {
             <p>No Cars yet!</p>
         }
-    </div>
-</div>
+    </CollapseBody>
+</Collapse>

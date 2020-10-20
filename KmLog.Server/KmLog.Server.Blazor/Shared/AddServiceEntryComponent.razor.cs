@@ -9,6 +9,8 @@ namespace KmLog.Server.Blazor.Shared
 {
     public partial class AddServiceEntryComponent : AddEntryBase<ServiceEntryModel>
     {
+        private bool collapseVisible = false;
+
         protected override ServiceEntryModel Entry { get; set; } = new ServiceEntryModel
         {
             Date = DateTime.Today
