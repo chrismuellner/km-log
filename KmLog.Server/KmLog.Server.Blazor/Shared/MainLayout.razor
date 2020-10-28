@@ -12,7 +12,16 @@
     <div class="content px-4">
         <AuthorizeView>
             <Authorized>
-                @Body
+                <CascadingValue Value="this" Name="ErrorComponent">
+                    @Body
+                </CascadingValue>
+
+                <Snackbar @ref="errorSnackbar" Multiline="true" Interval="5000">
+                    <SnackbarBody>
+                        @errorMessage
+                    </SnackbarBody>
+                    <SnackbarAction Clicked="@StackTraceToClipboard">Copy Stack Trace</SnackbarAction>
+                </Snackbar>
             </Authorized>
             <NotAuthorized>
                 <div>
