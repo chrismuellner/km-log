@@ -10,15 +10,16 @@
     </div>
 
     <div class="content px-4">
-        @if (State.Cars != null)
-        {
-            @Body
-        } 
-        else
-        {
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" />
-            </div>
-        }
+        <AuthorizeView>
+            <Authorized>
+                @Body
+            </Authorized>
+            <NotAuthorized>
+                <div>
+                    <h1>Welcome to KM Log!</h1>
+                    <p>Please sign in to continue.</p>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </div>

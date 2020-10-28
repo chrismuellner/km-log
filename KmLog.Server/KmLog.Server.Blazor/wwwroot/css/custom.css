@@ -1,4 +1,11 @@
-﻿.no-gap {
+﻿.loading-center {
+    position: absolute;
+    top: 30vh;
+    width: 100%;
+    text-align: center;
+}
+
+.no-gap {
     margin: 0;
     padding: 0;
 }
