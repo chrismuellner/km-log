@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using KmLog.Server.Blazor.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -11,6 +12,9 @@ namespace KmLog.Server.Blazor.Pages
 
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+        [CascadingParameter(Name = "ErrorComponent")]
+        protected IErrorComponent ErrorComponent { get; set; }
 
         protected override async Task OnInitializedAsync()
         {

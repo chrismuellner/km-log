@@ -29,6 +29,7 @@ namespace KmLog.Server.Blazor
 
             // services
             builder.Services.AddSingleton<AppState>();
+            builder.Services.AddScoped<ClipboardService>();
 
             // custom validators
             builder.Services.AddScoped<RefuelEntryValidator>();
