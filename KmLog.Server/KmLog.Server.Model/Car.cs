@@ -19,7 +19,7 @@ namespace KmLog.Server.Model
 
         public string Description { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<RefuelEntry> RefuelEntries { get; set; }
     }

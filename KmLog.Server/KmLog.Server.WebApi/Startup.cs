@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using System.Net.Mime;
 using KmLog.Server.Dal.DI;
+using KmLog.Server.EF;
 using KmLog.Server.EF.DI;
 using KmLog.Server.Logic.DI;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using KmLog.Server.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,31 +35,15 @@ namespace KmLog.Server.WebApi
                 .AddNewtonsoftJson();
 
             services.AddDbContext(Configuration);
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<KmLogContext>()
+                .AddDefaultTokenProviders();
 
             services.AddResponseCompression(options =>
             {
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { MediaTypeNames.Application.Octet });
             });
-
-            services
-                .AddAuthentication(opts =>
-                {
-                    opts.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                })
-                .AddCookie()
-                .AddMicrosoftAccount(opts =>
-                {
-                    var azureSection = Configuration.GetSection(AzureSection);
-
-                    opts.ClientId = azureSection[ClientIdKey];
-                    opts.ClientSecret = azureSection[ClientSecretKey];
-                    opts.Events.OnRemoteFailure = (context) =>
-                    {
-                        context.HandleResponse();
-                        return context.Response.WriteAsync("<script>window.close();</script>");
-                    };
-                });
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -88,7 +73,7 @@ namespace KmLog.Server.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebAssemblyDebugging();
+                //app.UseWebAssemblyDebugging();
             }
             else
             {
@@ -96,18 +81,18 @@ namespace KmLog.Server.WebApi
             }
 
             app.UseHttpsRedirection();
-            app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
+            //app.UseBlazorFrameworkFiles();
+            //app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");
+                //endpoints.MapFallbackToFile("index.html");
             });
         }
     }

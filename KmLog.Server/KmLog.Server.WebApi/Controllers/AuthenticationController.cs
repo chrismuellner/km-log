@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using KmLog.Server.Domain;
 using KmLog.Server.Logic;
@@ -7,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace KmLog.Server.WebApi.Controllers
 {
@@ -17,57 +21,42 @@ namespace KmLog.Server.WebApi.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly AuthenticationLogic _authenticationLogic;
 
-        private static readonly UserInfo LoggedOutUser = new UserInfo { IsAuthenticated = false };
-
         public AuthenticationController(ILogger<AuthenticationController> logger, AuthenticationLogic authenticationLogic)
         {
             _logger = logger;
             _authenticationLogic = authenticationLogic;
         }
 
-        [HttpGet]
+        [HttpGet("login")]
         public async Task<IActionResult> GetUser()
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-            if (claimsIdentity.IsAuthenticated)
+            var email = "";
+            var password = "";
+            if (email != null && await _authenticationLogic.CheckUser(email, password))
             {
-                var email = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
-                if (email != null && await _authenticationLogic.CheckEmailExists(email))
+                var authClaims = new[]
                 {
-                    return Ok(new UserInfo
-                    {
-                        Name = claimsIdentity.Name,
-                        IsAuthenticated = true
-                    });
-                } 
-                else
+                    new Claim(JwtRegisteredClaimNames.Sub, email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("RANDOM_STRING123"));
+                var token = new JwtSecurityToken(
+                    issuer: "https://kmlog.dev",
+                    audience: "https://kmlog.dev",
+                    expires: DateTime.Now.AddDays(7),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+                return Ok(new
                 {
-                    _logger.LogWarning($"Unregistered user with email '{email}' tried to login!");
-                    return Unauthorized();
-                }
-                
-            }
-            return Ok(LoggedOutUser);
-        }
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
+            } 
 
-        [HttpGet("signin")]
-        public async Task SignIn(string redirectUri)
-        {
-            if (string.IsNullOrEmpty(redirectUri) || !Url.IsLocalUrl(redirectUri))
-            {
-                redirectUri = "/";
-            }
-
-            await HttpContext.ChallengeAsync(
-                MicrosoftAccountDefaults.AuthenticationScheme,
-                new AuthenticationProperties { RedirectUri = redirectUri });
-        }
-
-        [HttpGet("signout")]
-        public async Task<IActionResult> SignOut()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Redirect("~/");
+            _logger.LogWarning($"Unregistered user with email '{email}' tried to login!");
+            return Unauthorized();
         }
     }
 }

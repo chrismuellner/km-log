@@ -85,7 +85,7 @@ namespace KmLog.Server.Logic
                 user.GroupId = group.Id;
 
                 var entity = _mapper.Map<User>(user);
-                _unitOfWork.UserRepository.Update(entity);
+                //_unitOfWork.UserRepository.Update(entity);
 
                 await _unitOfWork.Save();
                 transaction.Commit();
@@ -101,10 +101,11 @@ namespace KmLog.Server.Logic
 
         private async Task<UserDto> CheckUser(string email)
         {
-            var user = await _unitOfWork.UserRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
-            return user != null
-                ? _mapper.Map<UserDto>(user)
-                : throw new AuthenticationException("Unknown user");
+            //var user = await _unitOfWork.UserRepository.Query().FirstOrDefaultAsync(u => u.Email == email);
+            //return user != null
+            //    ? _mapper.Map<UserDto>(user)
+            //    : throw new AuthenticationException("Unknown user");
+            return null;
         }
     }
 }

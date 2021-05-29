@@ -8,8 +8,6 @@ namespace KmLog.Server.Dal
     {
         IRepository<Car> CarRepository { get; }
 
-        IRepository<User> UserRepository { get; }
-
         IRepository<RefuelEntry> RefuelEntryRepository { get; }
 
         IRepository<ServiceEntry> ServiceEntryRepository { get; }

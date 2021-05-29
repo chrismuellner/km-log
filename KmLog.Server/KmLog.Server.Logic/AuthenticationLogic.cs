@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using KmLog.Server.Dal;
+using KmLog.Server.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -9,22 +11,21 @@ namespace KmLog.Server.Logic
     public class AuthenticationLogic
     {
         private readonly ILogger<AuthenticationLogic> _logger;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<User> _userManager;
 
-        public AuthenticationLogic(ILogger<AuthenticationLogic> logger, IUnitOfWork unitOfWork)
+        public AuthenticationLogic(ILogger<AuthenticationLogic> logger, UserManager<User> userManager)
         {
             _logger = logger;
-            _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
 
-        public async Task<bool> CheckEmailExists(string email)
+        public async Task<bool> CheckUser(string username, string password)
         {
             try
             {
-                using var transaction = _unitOfWork.BeginTransaction();
-
-                return await _unitOfWork.UserRepository.Query()
-                    .AnyAsync(u => u.Email == email);
+                //var user = await _userManager.FindByNameAsync(username);
+                //return user != null && await _userManager.CheckPasswordAsync(user, password);
+                return true;
             }
             catch (Exception ex)
             {

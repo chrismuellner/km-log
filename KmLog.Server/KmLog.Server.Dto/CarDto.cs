@@ -7,7 +7,7 @@ namespace KmLog.Server.Dto
     {
         public ICollection<RefuelEntryInfoDto> RefuelEntries { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         public UserDto User { get; set; }
     }

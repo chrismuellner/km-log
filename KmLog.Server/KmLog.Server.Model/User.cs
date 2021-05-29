@@ -1,15 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using KmLog.Server.Domain;
-using KmLog.Server.Model.Base;
+using Microsoft.AspNetCore.Identity;
 
 namespace KmLog.Server.Model
 {
-    public class User : IdentifiableBase
+    public class User : IdentityUser
     {
-        [Required]
-        public string Email { get; set; }
-
         public UserRole? Role { get; set; }
 
         public Guid? GroupId { get; set; }

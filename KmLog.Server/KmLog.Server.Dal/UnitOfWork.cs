@@ -10,21 +10,18 @@ namespace KmLog.Server.Dal
         private readonly KmLogContext _context;
 
         public UnitOfWork(KmLogContext kmLogContext,
-                          IRepository<Car> carRepository, IRepository<User> userRepository,
+                          IRepository<Car> carRepository,
                           IRepository<RefuelEntry> refuelEntryRepository, IRepository<ServiceEntry> serviceEntryRepository, 
                           IRepository<Group> groupRepository)
         {
             _context = kmLogContext;
             CarRepository = carRepository;
-            UserRepository = userRepository;
             RefuelEntryRepository = refuelEntryRepository;
             ServiceEntryRepository = serviceEntryRepository;
             GroupRepository = groupRepository;
         }
 
         public IRepository<Car> CarRepository { get; }
-
-        public IRepository<User> UserRepository { get; }
 
         public IRepository<RefuelEntry> RefuelEntryRepository { get; }
 
